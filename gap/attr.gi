@@ -302,16 +302,25 @@ function(D)
   subset_iter := IteratorOfCombinations(vertices);
   # Skip the first one, which should be the empty set.
   NextIterator(subset_iter);
+  # Iterate over all vertex subsets.
   for s in subset_iter do
+    # Index the current subset that is being iterated over.
     S := Sum(s, x -> 2 ^ (x - 1)) + 1;
     x[S] := infinity;
+    # Get the subgraph induced by the vertex subset.
     induced_subgraph := InducedSubdigraph(D, s);
+    # Iterate over the maximal independent sets of D[S]
     for I in DigraphMaximalIndependentSets(induced_subgraph) do
+        # Create a clone of the subset that we can remove the current
+        # independent set from.
         s_without_I := ShallowCopy(s);
-        # Need to relabl the independent set back to the original labels.
         SubtractSet(s_without_I, SetX(I,
+        # Need to relable the independent set back to the original labels.
         x -> DigraphVertexLabel(induced_subgraph, x)));
+        # Index S \ I
         i := Sum(s_without_I, x -> 2 ^ (x - 1)) + 1;
+        # The chromatic number of this subset is the minimum value of all
+        # the maximal independent subsets of D[S].
         if x[i] + 1 < x[S] then
             x[S] := x[i] + 1;
         fi;
