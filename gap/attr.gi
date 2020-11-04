@@ -290,6 +290,37 @@ function(D)
   return chrom;
 end);
 
+InstallMethod(ChromaticNumberLawler, "for a digraph",
+[IsDigraph],
+function(D)
+  local n, vertices, x, s, S, i, I, s_without_I, subset_iter, induced_subgraph;
+
+  n := DigraphNrVertices(D);
+  vertices := DigraphVertices(D);
+  x := [1 .. 2 ^ n];
+  x[1] := 0;
+  subset_iter := IteratorOfCombinations(vertices);
+  # Skip the first one, which should be the empty set.
+  NextIterator(subset_iter);
+  for s in subset_iter do
+    S := Sum(vertices, x -> 2 ^ (x - 1)) + 1;
+    x[S] := infinity;
+    induced_subgraph := InducedSubdigraph(D, s);
+    for I in DigraphMaximalIndependentSets(induced_subgraph) do
+        s_without_I := ShallowCopy(s);
+        # Need to relabl the independent set back to the original labels.
+        SubtractSet(s_without_I, SetX(I,
+        x -> DigraphVertexLabel(induced_subgraph, x)));
+        i := Sum(vertices, x -> 2 ^ (x - 1)) + 1;
+        if x[i] + 1 < x[S] then
+            x[S] := x[i] + 1;
+        fi;
+    od;
+  od;
+  return x[2 ^ n];
+end
+);
+
 #
 # The following method is currently useless, as the OutNeighbours are computed
 # and set whenever a digraph is created.  It could be reinstated later if we

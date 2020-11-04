@@ -60,6 +60,7 @@ DeclareAttribute("DigraphPeriod", IsDigraph);
 DeclareAttribute("DigraphLoops", IsDigraph);
 
 DeclareAttribute("ChromaticNumber", IsDigraph);
+DeclareOperation("ChromaticNumberLawler", [IsDigraph]);
 DeclareAttribute("DigraphBicomponents", IsDigraph);
 DeclareAttribute("DIGRAPHS_Bipartite", IsDigraph);
 DeclareAttribute("DigraphCore", IsDigraph);
