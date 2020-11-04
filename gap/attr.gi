@@ -303,7 +303,7 @@ function(D)
   # Skip the first one, which should be the empty set.
   NextIterator(subset_iter);
   for s in subset_iter do
-    S := Sum(vertices, x -> 2 ^ (x - 1)) + 1;
+    S := Sum(s, x -> 2 ^ (x - 1)) + 1;
     x[S] := infinity;
     induced_subgraph := InducedSubdigraph(D, s);
     for I in DigraphMaximalIndependentSets(induced_subgraph) do
@@ -311,7 +311,7 @@ function(D)
         # Need to relabl the independent set back to the original labels.
         SubtractSet(s_without_I, SetX(I,
         x -> DigraphVertexLabel(induced_subgraph, x)));
-        i := Sum(vertices, x -> 2 ^ (x - 1)) + 1;
+        i := Sum(s_without_I, x -> 2 ^ (x - 1)) + 1;
         if x[i] + 1 < x[S] then
             x[S] := x[i] + 1;
         fi;
