@@ -1214,9 +1214,13 @@ gap> D := DigraphSymmetricClosure(CayleyDigraph(DihedralGroup(8)));
 <immutable symmetric digraph with 8 vertices, 32 edges>
 gap> ChromaticNumber(D);
 4
+gap> ChromaticNumberLawler(D);
+4
 gap> D := DigraphMycielskian(D);
 <immutable digraph with 17 vertices, 112 edges>
 gap> ChromaticNumber(D);
+5
+gap> ChromaticNumberLawler(D);
 5
 gap> D1 := Digraph([[], [3], [2]]);
 <immutable digraph with 3 vertices, 2 edges>
