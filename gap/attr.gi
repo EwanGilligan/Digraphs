@@ -330,6 +330,72 @@ function(D)
 end
 );
 
+InstallMethod(ChromaticNumberByskov, "for a digraph",
+[IsDigraph],
+function(D)
+  local n, vertices, x, s,S, i,j, I, s_copy, subset_iter, induced_subgraph, index_subsets;
+
+  n := DigraphNrVertices(D);
+  vertices := DigraphVertices(D);
+  x := [1 .. 2 ^ n];
+  x[1] := 0;
+  # Function to index the subsets of the vertices of D.
+  index_subsets = set -> Sum(set, x -> 2^ (x - 1)) + 1;
+  subset_iter := IteratorOfCombinations(vertices);
+  # Skip the first one, which should be the empty set.
+  NextIterator(subset_iter);
+  # First find the 3 colourable subgraphs of D
+  for s in subset_iter do 
+    i := index_subsets(s);
+    x[i] = infinity
+    # TODO process 3 colourable subgraphs
+  od;
+  # Process 4 colourable subgraphs
+  for I in DigraphMaximalIndependentSets(D) do
+    vertex_copy = ShallowCopy(vertices);
+    SubtractSet(vertex_copy, I);
+    # Iterate over all subsets of V(D) \ I
+    for s in IteratorOfCombinations(vertex_copy) do
+      i := index_subsets(s); 
+      if x[i] = 3 then
+        s_copy := ShallowCopy(s);
+        UniteSet(s_copy, I);
+        j := Sum(s_copy, x -> 2 ^ (x - 1)) + 1;
+        if x[j] > 4 then
+          x[j] := 4
+        fi;
+      fi;
+    od;
+  od;
+  # Iterate over all vertex subsets.
+  subset_iter := IteratorOfCombinations(vertices);
+  # Skip the first one, which should be the empty set.
+  NextIterator(subset_iter);
+  for s in subset_iter do
+    # Index the current subset that is being iterated over.
+    i := index_subsets(s); 
+    if 4 <= x[i] and x[i] < infinity then
+      # Get the subgraph induced by the vertex subset.
+      induced_subgraph := InducedSubdigraph(D, s);
+      # Iterate over the maximal independent sets of D[S]
+      for I in DigraphMaximalIndependentSets(induced_subgraph) do
+        # Bound the size of sets we need to consider.
+        if Length(I) <= Length(s) / x[i] then 
+          s_copy := ShallowCopy(s);
+          # Union with I, but need to relabel the induced subgraph labels back to their original labels
+          UniteSet(s_copy, SetX(I, x -> DigraphVertexLabel(induced_subgraph, x)));
+          j := index_subsets(s_copy); 
+          if x[j] > x[i] + 1 then
+              x[j] := x[i] + 1;
+          fi;
+        fi;
+      od;
+    fi;
+  od;
+  return x[2 ^ n];
+end
+);
+
 #
 # The following method is currently useless, as the OutNeighbours are computed
 # and set whenever a digraph is created.  It could be reinstated later if we
