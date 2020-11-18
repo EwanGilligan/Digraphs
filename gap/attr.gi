@@ -535,7 +535,11 @@ function(D)
   for s in subset_iter do 
     i := index_subsets(s);
     x[i] = infinity
-    # TODO process 3 colourable subgraphs
+    a = DIGRAPHS_UnderThreeColourable(s);
+    # Mark this as three colourable if it is.
+    if a < x[i] then 
+      x[i] = a;
+    fi;
   od;
   # Process 4 colourable subgraphs
   for I in DigraphMaximalIndependentSets(D) do
@@ -580,6 +584,34 @@ function(D)
     fi;
   od;
   return x[2 ^ n];
+end
+);
+
+InstallMethod(DIGRAPHS_UnderThreeColourable, "for a digraph",
+[IsDigraph],
+function(D)
+  local nr, induced_subgraph;
+  nr := DigraphNrVertices(D);
+  if DigraphHasLoops(D) then
+    ErrorNoReturn("the argument <D> must be a digraph with no loops,");
+  elif nr = 0 then
+    return 0;  # chromatic number = 0 iff <D> has 0 verts
+  elif IsNullDigraph(D) then
+    return 1;  # chromatic number = 1 iff <D> has >= 1 verts & no edges
+  elif IsBipartiteDigraph(D) then
+    return 2;  # chromatic number = 2 iff <D> has >= 2 verts & is bipartite
+               # <D> has at least 2 vertices at this stage
+  fi;
+  # Now check if the graph is three colourable
+  # This is done by searching for a maximal independent set where the induced subgraph is bipartite.
+  for I in DigraphMaximalIndependentSets(D) do
+    induced_subgraph = InducedSubdigraph(D, I);
+    if IsBipartiteDigraph(induced_subgraph) then
+      return 3
+    fi;
+  od;
+  # This graph is greater than 3 colourable.
+  return infinity;
 end
 );
 
