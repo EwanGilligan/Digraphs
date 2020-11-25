@@ -61,6 +61,7 @@ DeclareAttribute("DigraphLoops", IsDigraph);
 
 DeclareAttribute("ChromaticNumber", IsDigraph);
 DeclareOperation("ChromaticNumberLawler", [IsDigraph]);
+DeclareOperation("ChromaticNumberByskov", [IsDigraph]);
 DeclareAttribute("DigraphBicomponents", IsDigraph);
 DeclareAttribute("DIGRAPHS_Bipartite", IsDigraph);
 DeclareAttribute("DigraphCore", IsDigraph);
