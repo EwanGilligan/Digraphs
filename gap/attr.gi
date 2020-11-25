@@ -533,9 +533,11 @@ function(D)
   fi;
   # Now check if the graph is three colourable
   # This is done by searching for a maximal independent set where the induced subgraph is bipartite.
+  # Need to make a copy in case we are given a mutable digraph
+  D := DigraphImmutableCopy(D);
   for I in DigraphMaximalIndependentSets(D) do
-    induced_subgraph := InducedSubdigraph(D, I);
-    if IsBipartiteDigraph(induced_subgraph) then
+    # Check if removing these vertices gives you a bipartite digraph
+    if IsBipartiteDigraph(DigraphRemoveVertices(D, I)) then
       return 3;
     fi;
   od;
@@ -567,7 +569,7 @@ function(D)
   for s in subset_iter do 
     i := index_subsets(s);
     x[i] := infinity;
-    a := DIGRAPHS_UnderThreeColourable(s);
+    a := DIGRAPHS_UnderThreeColourable(InducedSubdigraph(D, s));
     # Mark this as three colourable if it is.
     if a < x[i] then 
       x[i] := a;
