@@ -517,8 +517,7 @@ function(D, Byskov)
 end
 );
 
-InstallMethod(DIGRAPHS_UnderThreeColourable, "for a digraph",
-[IsDigraph],
+BindGlobal("DIGRAPHS_UnderThreeColourable",
 function(D)
   local nr, induced_subgraph, I;
   nr := DigraphNrVertices(D);
