@@ -50,5 +50,6 @@ ReadPackage("digraphs", "gap/orbits.gd");
 ReadPackage("digraphs", "gap/cliques.gd");
 ReadPackage("digraphs", "gap/planar.gd");
 ReadPackage("digraphs", "gap/examples.gd");
+ReadPackage("digraphs", "gap/algobj.gd");
 
 DeclareInfoClass("InfoDigraphs");
