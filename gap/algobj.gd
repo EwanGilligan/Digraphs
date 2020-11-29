@@ -1,5 +1,5 @@
 DeclareCategory("IsDigraphAlgorithm", IsObject);
-DeclareCategory("IsDigraphColouringAlgorithm", isDigraphAlgorithm);
+DeclareCategory("IsDigraphColouringAlgorithm", IsDigraphAlgorithm);
 # Filters for specific graph colouring algorithm implementations
 DeclareFilter("IsDigraphColouringAlgorithmByskov");
 DeclareFilter("IsDigraphColouringAlgorithmLawler");
