@@ -38,6 +38,7 @@ ReadPackage("digraphs", "gap/digraphs.g");
 ReadPackage("digraphs", "gap/constructors.gd");
 ReadPackage("digraphs", "gap/grape.gd");
 ReadPackage("digraphs", "gap/labels.gd");
+ReadPackage("digraphs", "gap/algobj.gd");
 ReadPackage("digraphs", "gap/attr.gd");
 ReadPackage("digraphs", "gap/prop.gd");
 ReadPackage("digraphs", "gap/oper.gd");
@@ -50,6 +51,5 @@ ReadPackage("digraphs", "gap/orbits.gd");
 ReadPackage("digraphs", "gap/cliques.gd");
 ReadPackage("digraphs", "gap/planar.gd");
 ReadPackage("digraphs", "gap/examples.gd");
-ReadPackage("digraphs", "gap/algobj.gd");
 
 DeclareInfoClass("InfoDigraphs");
