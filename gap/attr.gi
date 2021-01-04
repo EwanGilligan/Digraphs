@@ -585,7 +585,7 @@ function(D, Byskov)
       if x[i] = 3 then
         s_copy := ShallowCopy(s);
         UniteSet(s_copy, I);
-        j := Sum(s_copy, x -> 2 ^ (x - 1)) + 1;
+        j := index_subsets(s_copy);
         if x[j] > 4 then
           x[j] := 4;
         fi;
@@ -600,8 +600,10 @@ function(D, Byskov)
     # Index the current subset that is being iterated over.
     i := index_subsets(s); 
     if 4 <= x[i] and x[i] < infinity then
-      # Get the subgraph induced by the vertex subset.
-      induced_subgraph := InducedSubdigraph(D, s);
+      vertex_copy := ShallowCopy(vertices);
+      SubtractSet(vertex_copy, s);
+      # Get the subgraph induced by the complement of the vertex set and subset.
+      induced_subgraph := InducedSubdigraph(D, vertex_copy);
       # Iterate over the maximal independent sets of D[S]
       for I in DigraphMaximalIndependentSets(induced_subgraph) do
         # Bound the size of sets we need to consider.
