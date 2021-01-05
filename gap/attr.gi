@@ -387,7 +387,6 @@ function(D, Byskov)
     return 2;  # chromatic number = 2 iff <D> has >= 2 verts & is bipartite
                # <D> has at least 2 vertices at this stage
   fi;
- 
   vertices := DigraphVertices(D);
   x := [1 .. 2 ^ n];
   x[1] := 0;
