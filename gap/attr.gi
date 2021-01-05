@@ -294,7 +294,9 @@ InstallMethod(ChromaticNumber, "for a digraph",
 [IsDigraph, IsDigraphColouringAlgorithm and IsDigraphColouringAlgorithmLawler],
 function(D, Lawler)
   local n, vertices, x, s, S, i, I, s_without_I, subset_iter, induced_subgraph;
-
+  if DigraphHasLoops(D) then
+    ErrorNoReturn("the argument <D> must be a digraph with no loops,");
+  fi;
   n := DigraphNrVertices(D);
   vertices := DigraphVertices(D);
   x := [1 .. 2 ^ n];
@@ -363,7 +365,9 @@ InstallMethod(ChromaticNumber, "for a digraph",
 [IsDigraph, IsDigraphColouringAlgorithm and IsDigraphColouringAlgorithmByskov],
 function(D, Byskov)
   local n, a, vertices, x, s,S, i,j, I, s_copy, subset_iter, induced_subgraph, index_subsets, vertex_copy;
-
+  if DigraphHasLoops(D) then
+    ErrorNoReturn("the argument <D> must be a digraph with no loops,");
+  fi;
   n := DigraphNrVertices(D);
   vertices := DigraphVertices(D);
   x := [1 .. 2 ^ n];
