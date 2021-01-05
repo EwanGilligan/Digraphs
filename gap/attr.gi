@@ -343,7 +343,7 @@ end
 
 BindGlobal("DIGRAPHS_UnderThreeColourable",
 function(D)
-  local nr, induced_subgraph, I;
+  local nr, I;
   nr := DigraphNrVertices(D);
   if DigraphHasLoops(D) then
     ErrorNoReturn("the argument <D> must be a digraph with no loops,");
@@ -355,8 +355,8 @@ function(D)
     return 2;  # chromatic number = 2 iff <D> has >= 2 verts & is bipartite
                # <D> has at least 2 vertices at this stage
   fi;
-  # Now check if the graph is three colourable
-  # This is done by searching for a maximal independent set where the induced subgraph is bipartite.
+  # Now check if the graph is three colourable. This is done by searching
+  # for a maximal independent set where the induced subgraph is bipartite.
   # Need to make a copy in case we are given a mutable digraph
   D := DigraphImmutableCopy(D);
   for I in DigraphMaximalIndependentSets(D) do
@@ -373,7 +373,8 @@ end
 InstallMethod(ChromaticNumber, "for a digraph",
 [IsDigraph, IsDigraphColouringAlgorithm and IsDigraphColouringAlgorithmByskov],
 function(D, Byskov)
-  local n, a, vertices, x, s,S, i,j, I, s_copy, subset_iter, induced_subgraph, index_subsets, vertex_copy;
+  local n, a, vertices, x, s, i, j, I, s_copy, subset_iter, induced_subgraph,
+  index_subsets, vertex_copy;
 
   n := DigraphNrVertices(D);
   if DigraphHasLoops(D) then
@@ -439,8 +440,10 @@ function(D, Byskov)
         # Bound the size of sets we need to consider.
         if Length(I) <= Length(s) / x[i] then 
           s_copy := ShallowCopy(s);
-          # Union with I, but need to relabel the induced subgraph labels back to their original labels
-          UniteSet(s_copy, SetX(I, x -> DigraphVertexLabel(induced_subgraph, x)));
+          # Union with I, but need to relabel the induced subgraph
+          # labels back to their original labels
+          UniteSet(s_copy,
+            SetX(I, x -> DigraphVertexLabel(induced_subgraph, x)));
           j := index_subsets(s_copy); 
           if x[j] > x[i] + 1 then
               x[j] := x[i] + 1;
@@ -452,7 +455,6 @@ function(D, Byskov)
   return x[2 ^ n];
 end
 );
-
 
 #
 # The following method is currently useless, as the OutNeighbours are computed
