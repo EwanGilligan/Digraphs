@@ -294,10 +294,19 @@ InstallMethod(ChromaticNumber, "for a digraph",
 [IsDigraph, IsDigraphColouringAlgorithm and IsDigraphColouringAlgorithmLawler],
 function(D, Lawler)
   local n, vertices, x, s, S, i, I, s_without_I, subset_iter, induced_subgraph;
+
+  n := DigraphNrVertices(D);
   if DigraphHasLoops(D) then
     ErrorNoReturn("the argument <D> must be a digraph with no loops,");
+  elif n = 0 then
+    return 0;  # chromatic number = 0 iff <D> has 0 verts
+  elif IsNullDigraph(D) then
+    return 1;  # chromatic number = 1 iff <D> has >= 1 verts & no edges
+  elif IsBipartiteDigraph(D) then
+    return 2;  # chromatic number = 2 iff <D> has >= 2 verts & is bipartite
+               # <D> has at least 2 vertices at this stage
   fi;
-  n := DigraphNrVertices(D);
+
   vertices := DigraphVertices(D);
   x := [1 .. 2 ^ n];
   x[1] := 0;
@@ -365,10 +374,19 @@ InstallMethod(ChromaticNumber, "for a digraph",
 [IsDigraph, IsDigraphColouringAlgorithm and IsDigraphColouringAlgorithmByskov],
 function(D, Byskov)
   local n, a, vertices, x, s,S, i,j, I, s_copy, subset_iter, induced_subgraph, index_subsets, vertex_copy;
+
+  n := DigraphNrVertices(D);
   if DigraphHasLoops(D) then
     ErrorNoReturn("the argument <D> must be a digraph with no loops,");
+  elif n = 0 then
+    return 0;  # chromatic number = 0 iff <D> has 0 verts
+  elif IsNullDigraph(D) then
+    return 1;  # chromatic number = 1 iff <D> has >= 1 verts & no edges
+  elif IsBipartiteDigraph(D) then
+    return 2;  # chromatic number = 2 iff <D> has >= 2 verts & is bipartite
+               # <D> has at least 2 vertices at this stage
   fi;
-  n := DigraphNrVertices(D);
+  
   vertices := DigraphVertices(D);
   x := [1 .. 2 ^ n];
   x[1] := 0;
