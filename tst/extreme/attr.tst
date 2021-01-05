@@ -67,6 +67,19 @@ gap> str := Concatenation("""khdLA_gc?N_QQchPIS@Q_dH@GKA_W@OW?Fo???~{G??SgSo""",
 gap> gr := DigraphFromGraph6String(str);;
 gap> ChromaticNumber(gr);
 6
+
+# ChromaticNumber (Tests too slow for standard)
+gap> D := DigraphSymmetricClosure(CayleyDigraph(DihedralGroup(8)));;
+gap> ChromaticNumber(D, DigraphColouringAlgorithmLawler);
+4
+gap> ChromaticNumber(D, DigraphColouringAlgorithmByskov);
+4
+gap> D := DigraphMycielskian(D);;
+gap> ChromaticNumber(D, DigraphColouringAlgorithmLawler);
+5
+gap> ChromaticNumber(D, DigraphColouringAlgorithmByskov);
+5
+
 #  DIGRAPHS_UnbindVariables
 gap> Unbind(circs);
 gap> Unbind(g);
