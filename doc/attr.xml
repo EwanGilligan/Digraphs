@@ -1441,14 +1441,14 @@ gap> ChromaticNumber(D);
 
 <#GAPDoc Label="ChromaticNumberFunc">
 <ManSection>
-    <Func Name="ChromaticNumber" Arg="digraph, colouring algorithm">
+    <Func Name="ChromaticNumber" Arg="digraph, colouring algorithm" Label="ChromaticNumberFunc"/>
     <Returns> A non-negative integer.</Returns>
     <Description>
-        Alterative implementation of the Chromatic Number Attribute (See <Ref Attr=ChromaticNumber/>) that allows the 
+        Alterative implementation of the Chromatic Number Attribute (See <Ref Attr="ChromaticNumber"/>) that allows the
         specific algorithm used to be selected. 
 
-        If <A>digraph<A> is a digraph without loops (see <Ref Prop="DigraphHasLoops"/>), then <C>ChromaticNumber<C>
-        uses <A>colouring algorithm<A> to find the least non-negative integer <C>n</C> such that there is a proper
+        If <A>digraph</A> is a digraph without loops (see <Ref Prop="DigraphHasLoops"/>), then <C>ChromaticNumber</C>
+        uses <A>colouring algorithm</A> to find the least non-negative integer <C>n</C> such that there is a proper
         colouring of <A>digraph</A> with <C>n</C> colours.
 
         The current algorithm implementations are:
