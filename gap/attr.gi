@@ -387,22 +387,22 @@ function(D, Byskov)
     return 2;  # chromatic number = 2 iff <D> has >= 2 verts & is bipartite
                # <D> has at least 2 vertices at this stage
   fi;
-  
+ 
   vertices := DigraphVertices(D);
   x := [1 .. 2 ^ n];
   x[1] := 0;
   # Function to index the subsets of the vertices of D.
-  index_subsets := set -> Sum(set, x -> 2^ (x - 1)) + 1;
+  index_subsets := set -> Sum(set, x -> 2 ^ (x - 1)) + 1;
   subset_iter := IteratorOfCombinations(vertices);
   # Skip the first one, which should be the empty set.
   NextIterator(subset_iter);
   # First find the 3 colourable subgraphs of D
-  for s in subset_iter do 
+  for s in subset_iter do
     i := index_subsets(s);
     x[i] := infinity;
     a := DIGRAPHS_UnderThreeColourable(InducedSubdigraph(D, s));
     # Mark this as three colourable if it is.
-    if a < x[i] then 
+    if a < x[i] then
       x[i] := a;
     fi;
   od;
@@ -412,7 +412,7 @@ function(D, Byskov)
     SubtractSet(vertex_copy, I);
     # Iterate over all subsets of V(D) \ I
     for s in IteratorOfCombinations(vertex_copy) do
-      i := index_subsets(s); 
+      i := index_subsets(s);
       if x[i] = 3 then
         s_copy := ShallowCopy(s);
         UniteSet(s_copy, I);
@@ -429,7 +429,7 @@ function(D, Byskov)
   NextIterator(subset_iter);
   for s in subset_iter do
     # Index the current subset that is being iterated over.
-    i := index_subsets(s); 
+    i := index_subsets(s);
     if 4 <= x[i] and x[i] < infinity then
       vertex_copy := ShallowCopy(vertices);
       SubtractSet(vertex_copy, s);
@@ -438,13 +438,13 @@ function(D, Byskov)
       # Iterate over the maximal independent sets of D[S]
       for I in DigraphMaximalIndependentSets(induced_subgraph) do
         # Bound the size of sets we need to consider.
-        if Length(I) <= Length(s) / x[i] then 
+        if Length(I) <= Length(s) / x[i] then
           s_copy := ShallowCopy(s);
           # Union with I, but need to relabel the induced subgraph
           # labels back to their original labels
           UniteSet(s_copy,
             SetX(I, x -> DigraphVertexLabel(induced_subgraph, x)));
-          j := index_subsets(s_copy); 
+          j := index_subsets(s_copy);
           if x[j] > x[i] + 1 then
               x[j] := x[i] + 1;
           fi;

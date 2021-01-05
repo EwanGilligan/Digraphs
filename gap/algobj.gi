@@ -6,13 +6,12 @@ BindGlobal("DigraphColouringAlgorithmLawler",
             Objectify(
               NewType(
                 DigraphColouringAlgorithmFamilyObj,
-                IsDigraphColouringAlgorithmLawler), 
-              rec())
-        );
+                IsDigraphColouringAlgorithmLawler),
+              rec()));
 BindGlobal("DigraphColouringAlgorithmByskov",
             Objectify(
               NewType(
                 DigraphColouringAlgorithmFamilyObj,
-                IsDigraphColouringAlgorithmByskov), 
+                IsDigraphColouringAlgorithmByskov),
               rec()));
 Unbind(DigraphColouringAlgorithmFamilyObj);
