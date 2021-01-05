@@ -541,11 +541,6 @@ function(D)
       return 3;
     fi;
   od;
-  # Need to consider special case where there are 3 verts
-  # but no maximal independent sets
-  if nr = 3 then
-    return 3;
-  fi;
   # This graph is greater than 3 colourable.
   return infinity;
 end
