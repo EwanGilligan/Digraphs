@@ -1441,7 +1441,7 @@ gap> ChromaticNumber(D);
 
 <#GAPDoc Label="ChromaticNumberFunc">
 <ManSection>
-    <Func Name="ChromaticNumber" Arg="digraph, colouring algorithm" Label="ChromaticNumberFunc"/>
+    <Func Name="ChromaticNumber" Arg="digraph, colouring algorithm" Label="for a digraph and colouring algorithm"/>
     <Returns> A non-negative integer.</Returns>
     <Description>
         Alterative implementation of the Chromatic Number Attribute (See <Ref Attr="ChromaticNumber"/>) that allows the
