@@ -1445,27 +1445,29 @@ gap> ChromaticNumber(D);
         Label="for a digraph and colouring algorithm"/>
     <Returns> A non-negative integer.</Returns>
     <Description>
-        Alterative implementation of the Chromatic Number Attribute
-        (See <Ref Attr="ChromaticNumber"/>) that allows the specific algorithm 
-        used to be selected. 
+      Alterative implementation of the Chromatic Number Attribute
+      (See <Ref Attr="ChromaticNumber"/>) that allows the specific algorithm 
+      used to be selected. 
 
-        If <A>digraph</A> is a digraph without loops (see <Ref 
-        Prop="DigraphHasLoops"/>), then <C>ChromaticNumber</C>
-        uses <A>colouring algorithm</A> to find the least non-negative integer 
-        <C>n</C> such that there is a proper colouring of <A>digraph</A> with 
-        <C>n</C> colours.
+      If <A>digraph</A> is a digraph without loops (see <Ref 
+      Prop="DigraphHasLoops"/>), then <C>ChromaticNumber</C> uses 
+      <A>colouring algorithm</A> to find the least non-negative integer <C>n</C>
+      such that there is a proper colouring of <A>digraph</A> with <C>n</C> 
+      colours.
 
-        The current algorithm implementations are:
-        <List>
-            <Item><A>DigraphColouringAlgorithmLawler</A> - Lawler's Algorithm 
-            <Cite Key="Law1976"/></Item>
-            <Item><A>DigraphColouringAlgorithmByskov</A> - Byskov's Algorithm 
-            <Cite Key="Bys2002"/></Item>
-        </List>
-        <Example><![CDATA[
-gap> ChromaticNumber(CompleteDigraph(10), DigraphColouringAlgorithmLawler);
+      The current algorithm implementations are:
+      <List>
+          <Item><A>DigraphColouringAlgorithmLawler</A> - Lawler's Algorithm 
+          <Cite Key="Law1976"/></Item>
+          <Item><A>DigraphColouringAlgorithmByskov</A> - Byskov's Algorithm 
+          <Cite Key="Bys2002"/></Item>
+      </List>
+      <Example><![CDATA[
+gap> ChromaticNumber(CompleteDigraph(10),
+                     DigraphColouringAlgorithmLawler);
 10
-gap> ChromaticNumber(CompleteDigraph(10), DigraphColouringAlgorithmByskov);
+gap> ChromaticNumber(CompleteDigraph(10),
+                     DigraphColouringAlgorithmByskov);
 10
 ]]></Example>
     </Description>
