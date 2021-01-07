@@ -1462,7 +1462,7 @@ gap> ChromaticNumber(CompleteDigraph(10), DigraphColouringAlgorithmLawler);
 10
 gap> ChromaticNumber(CompleteDigraph(10), DigraphColouringAlgorithmByskov);
 10
-        ]]></Example>
+]]></Example>
     </Description>
 </ManSection>
 <#/GAPDoc>
