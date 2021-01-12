@@ -15,4 +15,10 @@ BindGlobal("DigraphColouringAlgorithmByskov",
                 DigraphColouringAlgorithmFamilyObj,
                 IsDigraphColouringAlgorithmByskov),
               rec()));
+BindGlobal("DigraphColouringAlgorithmZykov",
+            Objectify(
+              NewType(
+                DigraphColouringAlgorithmFamilyObj,
+                IsDigraphColouringAlgorithmZykov),
+              rec()));
 Unbind(DigraphColouringAlgorithmFamilyObj);
