@@ -532,7 +532,8 @@ function(D)
                # <D> has at least 2 vertices at this stage
   fi;
   # Now check if the graph is three colourable. This is done by searching
-  # for a maximal independent set where the induced subgraph is bipartite.
+  # for a maximal independent set where the subgraph induced by removing the
+  # vertices in the set is bipartite.
   # Need to make a copy in case we are given a mutable digraph
   D := DigraphImmutableCopy(D);
   for I in DigraphMaximalIndependentSets(D) do
@@ -564,12 +565,14 @@ function(D, Byskov)
                # <D> has at least 2 vertices at this stage
   fi;
   vertices := DigraphVertices(D);
+  # Store current best colouring for each subset
   x := [1 .. 2 ^ n];
+  # Empty set is 0 colourable
   x[1] := 0;
-  # Function to index the subsets of the vertices of D.
+  # Function to index the subsets of the vertices of D
   index_subsets := set -> Sum(set, x -> 2 ^ (x - 1)) + 1;
   subset_iter := IteratorOfCombinations(vertices);
-  # Skip the first one, which should be the empty set.
+  # Skip the first one, which should be the empty set
   NextIterator(subset_iter);
   # First find the 3 colourable subgraphs of D
   for s in subset_iter do
@@ -613,6 +616,7 @@ function(D, Byskov)
       # Iterate over the maximal independent sets of D[S]
       for I in DigraphMaximalIndependentSets(induced_subgraph) do
         # Bound the size of sets we need to consider.
+        # TODO Filter maximal independent set sizes during calculation.
         if Length(I) <= Length(s) / x[i] then
           s_copy := ShallowCopy(s);
           # Union with I, but need to relabel the induced subgraph
