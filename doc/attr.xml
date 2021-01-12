@@ -1445,7 +1445,7 @@ gap> ChromaticNumber(D);
         Label="for a digraph and colouring algorithm"/>
     <Returns> A non-negative integer.</Returns>
     <Description>
-      Alterative implementation of the Chromatic Number Attribute
+      Alterative implementation of the Chromatic Number attribute
       (See <Ref Attr="ChromaticNumber"/>) that allows the specific algorithm 
       used to be selected. 
 
@@ -1453,7 +1453,8 @@ gap> ChromaticNumber(D);
       Prop="DigraphHasLoops"/>), then <C>ChromaticNumber</C> uses 
       <A>colouring algorithm</A> to find the least non-negative integer <C>n</C>
       such that there is a proper colouring of <A>digraph</A> with <C>n</C> 
-      colours.
+      colours. See <Ref Attr="ChromaticNumber"/> for the definition of a
+      proper colouring.
 
       The current algorithm implementations are:
       <List>
