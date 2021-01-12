@@ -547,7 +547,7 @@ function(D)
 end
 );
 
-InstallMethod(ChromaticNumber, "for a digraph",
+InstallMethod(ChromaticNumber, "for a digraph and colouring algorithm",
 [IsDigraph, IsDigraphColouringAlgorithm and IsDigraphColouringAlgorithmByskov],
 function(D, Byskov)
   local n, a, vertices, x, s, i, j, I, s_copy, subset_iter, induced_subgraph,
