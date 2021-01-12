@@ -1,3 +1,4 @@
+# Global bindings used for graph colouring algorithm selection.
 DigraphColouringAlgorithmFamilyObj := NewFamily(
                                       "DigraphColouringAlgorithmFamily",
                                       IsDigraphAlgorithm,
