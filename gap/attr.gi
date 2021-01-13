@@ -535,7 +535,7 @@ function(D)
   # for a maximal independent set where the subgraph induced by removing the
   # vertices in the set is bipartite.
   # Need to make a copy in case we are given a mutable digraph
-  D := DigraphImmutableCopy(D);
+  D := DigraphImmutableCopyIfMutable(D);
   for I in DigraphMaximalIndependentSets(D) do
     # Check if removing these vertices gives you a bipartite digraph
     if IsBipartiteDigraph(DigraphRemoveVertices(D, I)) then
