@@ -309,7 +309,7 @@ function(D, Lawler)
 
   vertices := DigraphVertices(D);
   # Store current best colouring for each subset
-  subset_colourings := ListWithIdenticalEntries(2^n, infinity);
+  subset_colourings := ListWithIdenticalEntries(2 ^ n, infinity);
   # Empty set can be colouring with only one colour.
   subset_colourings[1] := 0;
   subset_iter := IteratorOfCombinations(vertices);
