@@ -616,6 +616,9 @@ function(D, Byskov)
         for I in DigraphMaximalIndependentSets(D, [], s, infinity, k) do
           # Bound the size of sets we need to consider.
           # TODO Filter maximal independent set sizes during calculation.
+          # The current method does do this by iterating the possible sizes
+          # But it would be better if we could find all independent sets up
+          # to a given size in a single call.
           s_copy := ShallowCopy(s);
           # Union with I, but need to relabel the induced subgraph
           # labels back to their original labels
