@@ -315,7 +315,8 @@ function(D, Lawler)
   subset_iter := IteratorOfCombinations(vertices);
   subset_complement = ShallowCopy(vertices);
   # Skip the first one, which should be the empty set.
-  NextIterator(subset_iter);
+  s := NextIterator(subset_iter);
+  Assert(IsEmpty(s));
   # Iterate over all vertex subsets.
   for s in subset_iter do
     # Index the current subset that is being iterated over.
