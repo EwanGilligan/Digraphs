@@ -293,7 +293,7 @@ end);
 InstallMethod(ChromaticNumber, "for a digraph and colouring algorithm",
 [IsDigraph, IsDigraphColouringAlgorithm and IsDigraphColouringAlgorithmLawler],
 function(D, Lawler)
-  local n, vertices, x, s, S, i, I, s_without_I, subset_iter, induced_subgraph;
+  local n, vertices, subset_colourings, s, S, i, I, s_without_I, subset_iter, subset_complement;
 
   n := DigraphNrVertices(D);
   if DigraphHasLoops(D) then
@@ -309,9 +309,9 @@ function(D, Lawler)
 
   vertices := DigraphVertices(D);
   # Store current best colouring for each subset
-  x := [1 .. 2 ^ n];
+  subset_colourings := ListWithIdenticalEntries(2^n, infinity);
   # Empty set can be colouring with only one colour.
-  x[1] := 0;
+  subset_colourings[1] := 0;
   subset_iter := IteratorOfCombinations(vertices);
   # Skip the first one, which should be the empty set.
   NextIterator(subset_iter);
@@ -319,27 +319,24 @@ function(D, Lawler)
   for s in subset_iter do
     # Index the current subset that is being iterated over.
     S := Sum(s, x -> 2 ^ (x - 1)) + 1;
-    x[S] := infinity;
-    # Get the subgraph induced by the vertex subset.
-    induced_subgraph := InducedSubdigraph(D, s);
+    subset_complement := ShallowCopy(vertices);
+    SubtractSet(subset_complement, s);
     # Iterate over the maximal independent sets of D[S]
-    for I in DigraphMaximalIndependentSets(induced_subgraph) do
+    for I in DigraphMaximalIndependentSets(D, [], subset_complement) do
         # Create a clone of the subset that we can remove the current
         # independent set from.
-        s_without_I := ShallowCopy(s);
-        SubtractSet(s_without_I, SetX(I,
-        # Need to relable the independent set back to the original labels.
-        x -> DigraphVertexLabel(induced_subgraph, x)));
+        SubtractSet(s_without_I, I);
         # Index S \ I
         i := Sum(s_without_I, x -> 2 ^ (x - 1)) + 1;
         # The chromatic number of this subset is the minimum value of all
         # the maximal independent subsets of D[S].
-        if x[i] + 1 < x[S] then
-            x[S] := x[i] + 1;
+        if subset_colourings[i] + 1 < subset_colourings[S] then
+            subset_colourings[S] := subset_colourings[i] + 1;
         fi;
+        AddSet(s_without_I, I);
     od;
   od;
-  return x[2 ^ n];
+  return subset_colourings[2 ^ n];
 end
 );
 
@@ -361,7 +358,7 @@ function(D)
   # for a maximal independent set where the subgraph induced by removing the
   # vertices in the set is bipartite.
   # Need to make a copy in case we are given a mutable digraph
-  D := DigraphImmutableCopy(D);
+  D := DigraphImmutableCopyIfMutable(D);
   for I in DigraphMaximalIndependentSets(D) do
     # Check if removing these vertices gives you a bipartite digraph
     if IsBipartiteDigraph(DigraphRemoveVertices(D, I)) then
