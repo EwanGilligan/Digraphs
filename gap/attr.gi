@@ -313,7 +313,7 @@ function(D, Lawler)
   # Empty set can be colouring with only one colour.
   subset_colourings[1] := 0;
   subset_iter := IteratorOfCombinations(vertices);
-  subset_complement = ShallowCopy(vertices);
+  subset_complement := ShallowCopy(vertices);
   # Skip the first one, which should be the empty set.
   s := NextIterator(subset_iter);
   Assert(IsEmpty(s));
