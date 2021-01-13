@@ -313,28 +313,27 @@ function(D, Lawler)
   # Empty set can be colouring with only one colour.
   subset_colourings[1] := 0;
   subset_iter := IteratorOfCombinations(vertices);
+  subset_complement = ShallowCopy(vertices);
   # Skip the first one, which should be the empty set.
   NextIterator(subset_iter);
   # Iterate over all vertex subsets.
   for s in subset_iter do
     # Index the current subset that is being iterated over.
     S := Sum(s, x -> 2 ^ (x - 1)) + 1;
-    subset_complement := ShallowCopy(vertices);
     SubtractSet(subset_complement, s);
     # Iterate over the maximal independent sets of D[S]
     for I in DigraphMaximalIndependentSets(D, [], subset_complement) do
-        # Create a clone of the subset that we can remove the current
-        # independent set from.
+        # Calculate S \ I. This is destructive, but is undone.
         SubtractSet(s_without_I, I);
         # Index S \ I
         i := Sum(s_without_I, x -> 2 ^ (x - 1)) + 1;
         # The chromatic number of this subset is the minimum value of all
         # the maximal independent subsets of D[S].
-        if subset_colourings[i] + 1 < subset_colourings[S] then
-            subset_colourings[S] := subset_colourings[i] + 1;
-        fi;
+        subset_colourings[S] = Minimum(subset_colourings[S], subset_colourings[i] + 1);
+        # Undo the changes to the subset.
         AddSet(s_without_I, I);
     od;
+    AddSet(subset_complement, s);
   od;
   return subset_colourings[2 ^ n];
 end
