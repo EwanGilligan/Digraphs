@@ -385,7 +385,7 @@ function(D, Lawler)
         # Undo the changes to the subset.
         UniteBlist(S, I);
     od;
-    AddSet(subset_complement, s);
+    UniteSet(subset_complement, s);
   od;
   return subset_colours[2 ^ n];
 end
