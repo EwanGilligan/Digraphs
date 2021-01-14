@@ -567,7 +567,7 @@ function(D, Byskov)
   vertices := DigraphVertices(D);
   vertex_copy := ShallowCopy(vertices);
   # Store current best colouring for each subset
-  subset_colourings := ListWithIdenticalEntries(2 ^ n, infinity);
+  subset_colours := ListWithIdenticalEntries(2 ^ n, infinity);
   # Empty set is 0 colourable
   subset_colours[1] := 0;
   # Function to index the subsets of the vertices of D
@@ -582,7 +582,7 @@ function(D, Byskov)
     i := index_subsets(s);
     a := DIGRAPHS_UnderThreeColourable(InducedSubdigraph(D, s));
     # Mark this as three or less colourable if it is.
-    subset_colours[i] := Minimum(a, subset_colourings[i]);
+    subset_colours[i] := Minimum(a, subset_colours[i]);
   od;
   # Process 4 colourable subgraphs
   for I in DigraphMaximalIndependentSets(D) do
@@ -610,7 +610,7 @@ function(D, Byskov)
     i := index_subsets(s);
     if 4 <= subset_colours[i] and subset_colours[i] < infinity then
       k := 1;
-      while k <= Length(s) / subset_colourings[i] do
+      while k <= Length(s) / subset_colours[i] do
       # Iterate over the maximal independent sets of D[V \ S]
         for I in DigraphMaximalIndependentSets(D, [], s, infinity, k) do
           # Bound the size of sets we need to consider
@@ -629,7 +629,7 @@ function(D, Byskov)
       od;
     fi;
   od;
-  return subset_colourings[2 ^ n];
+  return subset_colours[2 ^ n];
 end
 );
 
