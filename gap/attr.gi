@@ -293,7 +293,8 @@ end);
 InstallMethod(ChromaticNumber, "for a digraph and colouring algorithm",
 [IsDigraph, IsDigraphColouringAlgorithm and IsDigraphColouringAlgorithmLawler],
 function(D, Lawler)
-  local n, vertices, subset_colourings, s, S, i, I, subset_iter, induced_subgraph;
+  local n, vertices, subset_colours, s, S, i, I, subset_iter,
+  induced_subgraph;
 
   n := DigraphNrVertices(D);
   if DigraphHasLoops(D) then
@@ -309,9 +310,9 @@ function(D, Lawler)
 
   vertices := DigraphVertices(D);
   # Store current best colouring for each subset
-  subset_colourings := ListWithIdenticalEntries(2 ^ n, infinity);
+  subset_colours := ListWithIdenticalEntries(2 ^ n, infinity);
   # Empty set can be colouring with only one colour.
-  subset_colourings[1] := 0;
+  subset_colours[1] := 0;
   subset_iter := IteratorOfCombinations(vertices);
   # Skip the first one, which should be the empty set.
   s := NextIterator(subset_iter);
@@ -324,12 +325,14 @@ function(D, Lawler)
     # Iterate over the maximal independent sets of D[S]
     for I in DigraphMaximalIndependentSets(induced_subgraph) do
         # Calculate S \ I. This is destructive, but is undone.
+        # A relabelling is required, as the vertices of induced subgraph
+        # are changed from what they were originally.
         SubtractSet(s, SetX(I, x -> DigraphVertexLabel(induced_subgraph, x)));
         # Index S \ I
         i := Sum(s, x -> 2 ^ (x - 1)) + 1;
         # The chromatic number of this subset is the minimum value of all
         # the maximal independent subsets of D[S].
-        subset_colourings[S] := Minimum(subset_colourings[S], subset_colourings[i] + 1);
+        subset_colours[S] := Minimum(subset_colours[S], subset_colours[i] + 1);
         # Undo the changes to the subset.
         UniteSet(s, SetX(I, x -> DigraphVertexLabel(induced_subgraph, x)));
     od;
@@ -371,7 +374,7 @@ end
 InstallMethod(ChromaticNumber, "for a digraph and colouring algorithm",
 [IsDigraph, IsDigraphColouringAlgorithm and IsDigraphColouringAlgorithmByskov],
 function(D, Byskov)
-  local n, a, vertices, subset_colourings, s, i, j, I, s_copy, subset_iter, subset_complement,
+  local n, a, vertices, subset_colours, s, i, j, I, s_copy, subset_iter,
   index_subsets, vertex_copy, k;
 
   n := DigraphNrVertices(D);
@@ -388,9 +391,9 @@ function(D, Byskov)
   vertices := DigraphVertices(D);
   vertex_copy := ShallowCopy(vertices);
   # Store current best colouring for each subset
-  subset_colourings := ListWithIdenticalEntries(2^n, infinity);
+  subset_colourings := ListWithIdenticalEntries(2 ^ n, infinity);
   # Empty set is 0 colourable
-  subset_colourings[1] := 0;
+  subset_colours[1] := 0;
   # Function to index the subsets of the vertices of D
   index_subsets := set -> Sum(set, x -> 2 ^ (x - 1)) + 1;
   # Iterate over vetex subsets
@@ -403,7 +406,7 @@ function(D, Byskov)
     i := index_subsets(s);
     a := DIGRAPHS_UnderThreeColourable(InducedSubdigraph(D, s));
     # Mark this as three or less colourable if it is.
-    subset_colourings[i] := Minimum(a, subset_colourings[i]);
+    subset_colours[i] := Minimum(a, subset_colourings[i]);
   od;
   # Process 4 colourable subgraphs
   for I in DigraphMaximalIndependentSets(D) do
@@ -411,11 +414,11 @@ function(D, Byskov)
     # Iterate over all subsets of V(D) \ I
     for s in IteratorOfCombinations(vertex_copy) do
       i := index_subsets(s);
-      if subset_colourings[i] = 3 then
+      if subset_colours[i] = 3 then
         s_copy := ShallowCopy(s);
         UniteSet(s_copy, I);
         j := index_subsets(s_copy);
-        subset_colourings[j] := Minimum(subset_colourings[j], 4);
+        subset_colours[j] := Minimum(subset_colours[j], 4);
       fi;
     od;
     # Undo the changes made.
@@ -427,24 +430,24 @@ function(D, Byskov)
   s := NextIterator(subset_iter);
   Assert(1, IsEmpty(s), "First set from iterator should be the empty set");
   for s in subset_iter do
-    # Index the current subset that is being iterated over.
+    # Index the current subset that is being iterated over
     i := index_subsets(s);
-    if 4 <= subset_colourings[i] and subset_colourings[i] < infinity then
+    if 4 <= subset_colours[i] and subset_colours[i] < infinity then
       k := 1;
-      while k <= Length(s) / subset_colourings[i] do 
+      while k <= Length(s) / subset_colourings[i] do
       # Iterate over the maximal independent sets of D[V \ S]
         for I in DigraphMaximalIndependentSets(D, [], s, infinity, k) do
-          # Bound the size of sets we need to consider.
-          # TODO Filter maximal independent set sizes during calculation.
+          # Bound the size of sets we need to consider
+          # TODO Filter maximal independent set sizes during calculation
           # The current method does do this by iterating the possible sizes
           # But it would be better if we could find all independent sets up
-          # to a given size in a single call.
+          # to a given size in a single call
           s_copy := ShallowCopy(s);
           # Union with I, but need to relabel the induced subgraph
           # labels back to their original labels
           UniteSet(s_copy, I);
           j := index_subsets(s_copy);
-          subset_colourings[j] := Minimum(subset_colourings[j], subset_colourings[i] + 1);
+          subset_colours[j] := Minimum(subset_colours[j], subset_colours[i] + 1);
         od;
         k := k + 1;
       od;
