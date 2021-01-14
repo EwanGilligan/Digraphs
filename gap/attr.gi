@@ -611,7 +611,7 @@ function(D, Byskov)
     if 4 <= subset_colours[i] and subset_colours[i] < infinity then
       k := 1;
       while k <= Length(s) / subset_colours[i] do
-      # Iterate over the maximal independent sets of D[V \ S]
+        # Iterate over the maximal independent sets of D[V \ S]
         for I in DigraphMaximalIndependentSets(D, [], s, infinity, k) do
           # Bound the size of sets we need to consider
           # TODO Filter maximal independent set sizes during calculation
