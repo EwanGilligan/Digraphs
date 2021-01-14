@@ -293,7 +293,7 @@ end);
 InstallMethod(ChromaticNumber, "for a digraph and colouring algorithm",
 [IsDigraph, IsDigraphColouringAlgorithm and IsDigraphColouringAlgorithmLawler],
 function(D, Lawler)
-  local n, vertices, subset_colourings, s, S, i, I, subset_iter, subset_complement;
+  local n, vertices, subset_colourings, s, S, i, I, subset_iter, induced_subgraph;
 
   n := DigraphNrVertices(D);
   if DigraphHasLoops(D) then
@@ -313,7 +313,6 @@ function(D, Lawler)
   # Empty set can be colouring with only one colour.
   subset_colourings[1] := 0;
   subset_iter := IteratorOfCombinations(vertices);
-  subset_complement := ShallowCopy(vertices);
   # Skip the first one, which should be the empty set.
   s := NextIterator(subset_iter);
   Assert(1, IsEmpty(s), "Should be empty set first");
@@ -321,20 +320,19 @@ function(D, Lawler)
   for s in subset_iter do
     # Index the current subset that is being iterated over.
     S := Sum(s, x -> 2 ^ (x - 1)) + 1;
-    SubtractSet(subset_complement, s);
+    induced_subgraph := InducedSubdigraph(D, s);
     # Iterate over the maximal independent sets of D[S]
-    for I in DigraphMaximalIndependentSets(D, [], subset_complement) do
+    for I in DigraphMaximalIndependentSets(induced_subgraph) do
         # Calculate S \ I. This is destructive, but is undone.
-        SubtractSet(s, I);
+        SubtractSet(s, SetX(I, x -> DigraphVertexLabel(induced_subgraph, x)));
         # Index S \ I
         i := Sum(s, x -> 2 ^ (x - 1)) + 1;
         # The chromatic number of this subset is the minimum value of all
         # the maximal independent subsets of D[S].
         subset_colourings[S] := Minimum(subset_colourings[S], subset_colourings[i] + 1);
         # Undo the changes to the subset.
-        UniteSet(s, I);
+        UniteSet(s, SetX(I, x -> DigraphVertexLabel(induced_subgraph, x)));
     od;
-    UniteSet(subset_complement, s);
   od;
   return subset_colourings[2 ^ n];
 end
