@@ -633,6 +633,48 @@ function(D, Byskov)
 end
 );
 
+BindGlobal("DIGRAPHS_ZykovReduce",
+function(D, q)
+  local nr;
+  nr := DigraphNrVertices(D);
+  if IsCompleteDigraph(D) then
+    q := Minimum(nr, q);
+  elif DigraphClique(D) = fail then
+    # Choose two non-adjacent vertices
+    # Colour the vertex contraction
+    # New vertex to add.
+    u := nr + 1
+    DigraphAddVertex(D, u);
+    for inVertex in DigraphInEdges(D, x); 
+    DIGRAPHS_ZykovReduce(D, q);
+    # Colour the edge addition
+    DigraphAddEdge(D, [x, y]);
+    DIGRAPHS_ZykovReduce(D, q);
+    DigraphRemoveEdge(D, [x, y]);
+  fi;
+  return q;
+end
+);
+
+InstallMethod(ChromaticNumber, "for a digraph and colouring algorithm",
+[IsDigraph, IsDigraphColouringAlgorithm and IsDigraphColouringAlgorithmZykov],
+function(D, Zykov)
+  local nr;
+  nr := DigraphNrVertices(D);
+  if DigraphHasLoops(D) then
+    ErrorNoReturn("the argument <D> must be a digraph with no loops,");
+  elif nr = 0 then
+    return 0;  # chromatic number = 0 iff <D> has 0 verts
+  elif IsNullDigraph(D) then
+    return 1;  # chromatic number = 1 iff <D> has >= 1 verts & no edges
+  elif IsBipartiteDigraph(D) then
+    return 2;  # chromatic number = 2 iff <D> has >= 2 verts & is bipartite
+               # <D> has at least 2 vertices at this stage
+  fi;
+  return DIGRAPHS_ZykovReduce(DigraphMutableCopy(D), nr);
+end
+);
+
 #
 # The following method is currently useless, as the OutNeighbours are computed
 # and set whenever a digraph is created.  It could be reinstated later if we
