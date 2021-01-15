@@ -663,7 +663,7 @@ function(D, Zykov)
       found := false;
       for x in vertices do
         for y in vertices do
-          if not x = y and not adjacent(x, y) then
+          if x <> y and not adjacent(x, y) and not adjacent(y,x) then
             found := true;
             break;
           fi;
@@ -672,6 +672,7 @@ function(D, Zykov)
           break;
         fi;
       od;
+      Assert(1, x <> y, "x and y must be different");
       Assert(1, found, "No adjacent vertices");
       # Colour the vertex contraction
       # New vertex to add.
@@ -683,22 +684,27 @@ function(D, Zykov)
          if vertex = x or vertex = y then
            continue;
          fi;
-         if adjacent(x, vertex) or adjacent(y, vertex) then
-           DigraphAddEdge(D_contraction, u, vertex);
+         if adjacent(x, vertex) or adjacent(vertex, x)
+           or adjacent(y, vertex) or adjacent(vertex, y) then
+            DigraphAddEdge(D_contraction, u, vertex);
+            DigraphAddEdge(D_contraction, vertex, u);
          fi;
       od;
       DigraphRemoveVertices(D_contraction, [x, y]);
       q := Minimum(q, ZykovReduce(D_contraction, q));
       # Colour the edge addition
       DigraphAddEdge(D, [x, y]);
+      DigraphAddEdge(D, [y, x]);
       q := Minimum(q, ZykovReduce(D, q));
       # Undo changes to the graph
       DigraphRemoveEdge(D, [x, y]);
+      DigraphRemoveEdge(D, [y, x]);
     fi;
     return q;
   end;
-
-  return ZykovReduce(DigraphMutableCopy(D), nr);
+  # Convert into a undirected graph.
+  D := DigraphSymmetricClosure(DigraphMutableCopy(D));
+  return ZykovReduce(D, nr);
 end
 );
 
