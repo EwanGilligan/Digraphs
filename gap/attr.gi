@@ -633,33 +633,10 @@ function(D, Byskov)
 end
 );
 
-BindGlobal("DIGRAPHS_ZykovReduce",
-function(D, q)
-  local nr;
-  nr := DigraphNrVertices(D);
-  if IsCompleteDigraph(D) then
-    q := Minimum(nr, q);
-  elif DigraphClique(D) = fail then
-    # Choose two non-adjacent vertices
-    # Colour the vertex contraction
-    # New vertex to add.
-    u := nr + 1
-    DigraphAddVertex(D, u);
-    for inVertex in DigraphInEdges(D, x); 
-    DIGRAPHS_ZykovReduce(D, q);
-    # Colour the edge addition
-    DigraphAddEdge(D, [x, y]);
-    DIGRAPHS_ZykovReduce(D, q);
-    DigraphRemoveEdge(D, [x, y]);
-  fi;
-  return q;
-end
-);
-
 InstallMethod(ChromaticNumber, "for a digraph and colouring algorithm",
 [IsDigraph, IsDigraphColouringAlgorithm and IsDigraphColouringAlgorithmZykov],
 function(D, Zykov)
-  local nr;
+  local nr, ZykovReduce;
   nr := DigraphNrVertices(D);
   if DigraphHasLoops(D) then
     ErrorNoReturn("the argument <D> must be a digraph with no loops,");
@@ -671,7 +648,57 @@ function(D, Zykov)
     return 2;  # chromatic number = 2 iff <D> has >= 2 verts & is bipartite
                # <D> has at least 2 vertices at this stage
   fi;
-  return DIGRAPHS_ZykovReduce(DigraphMutableCopy(D), nr);
+  # Recursive function call
+  ZykovReduce := function(D, q)
+    local nr, D_contraction, adjacent,vertices, vertex, x, y, u, found;
+    nr := DigraphNrVertices(D);
+    if IsCompleteDigraph(D) then
+      q := Minimum(nr, q);
+    elif DigraphClique(D, [], [], q) = fail then
+      # Get adjacency function
+      adjacent := DigraphAdjacencyFunction(D);
+      vertices := DigraphVertices(D);
+      # Choose two non-adjacent vertices x, y
+      # This is just done by ascending ordering.
+      found := false;
+      for x in vertices do
+        for y in vertices do
+          if not x = y and not adjacent(x, y) then
+            found := true;
+            break;
+          fi;
+        od;
+        if found then
+          break;
+        fi;
+      od;
+      Assert(1, found, "No adjacent vertices");
+      # Colour the vertex contraction
+      # New vertex to add.
+      u := nr + 1;
+      D_contraction := DigraphMutableCopy(D);
+      DigraphAddVertex(D_contraction, u);
+      for vertex in vertices do 
+         # Iterate over all vertices that 
+         if vertex = x or vertex = y then
+           continue;
+         fi;
+         if adjacent(x, vertex) or adjacent(y, vertex) then
+           DigraphAddEdge(D_contraction, u, vertex);
+         fi;
+      od;
+      DigraphRemoveVertices(D_contraction, [x, y]);
+      q := Minimum(q, ZykovReduce(D_contraction, q));
+      # Colour the edge addition
+      DigraphAddEdge(D, [x, y]);
+      q := Minimum(q, ZykovReduce(D, q));
+      # Undo changes to the graph
+      DigraphRemoveEdge(D, [x, y]);
+    fi;
+    return q;
+  end;
+
+  return ZykovReduce(DigraphMutableCopy(D), nr);
 end
 );
 
