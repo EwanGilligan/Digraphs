@@ -652,6 +652,8 @@ function(D, Zykov)
   ZykovReduce := function(D, q)
     local nr, D_contraction, adjacent,vertices, vertex, x, y, u, found;
     nr := DigraphNrVertices(D);
+    # Leaf nodes are either complete graphs or q-cliques. The chromatic number is then the 
+    # small q-clique found.
     if IsCompleteDigraph(D) then
       q := Minimum(nr, q);
     elif DigraphClique(D, [], [], q) = fail then
@@ -674,7 +676,9 @@ function(D, Zykov)
       od;
       Assert(1, x <> y, "x and y must be different");
       Assert(1, found, "No adjacent vertices");
-      # Colour the vertex contraction
+      # Colour the vertex contraction.
+      # A contraction of a graph effectively merges two non adacent verticies
+      # into a single new vertex with the edges merged.
       # New vertex to add.
       u := nr + 1;
       D_contraction := DigraphMutableCopy(D);
@@ -693,6 +697,7 @@ function(D, Zykov)
       DigraphRemoveVertices(D_contraction, [x, y]);
       q := Minimum(q, ZykovReduce(D_contraction, q));
       # Colour the edge addition
+      # This just adds symmetric edges between x and y;
       DigraphAddEdge(D, [x, y]);
       DigraphAddEdge(D, [y, x]);
       q := Minimum(q, ZykovReduce(D, q));
