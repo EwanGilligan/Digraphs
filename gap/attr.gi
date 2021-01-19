@@ -649,14 +649,14 @@ function(D, Zykov)
                # <D> has at least 2 vertices at this stage
   fi;
   # Recursive function call
-  ZykovReduce := function(D, q)
+  ZykovReduce := function(D) 
     local nr, D_contraction, adjacent,vertices, vertex, x, y, u, found;
     nr := DigraphNrVertices(D);
+    # Update upper bound if possible.
+    chrom := Minimum(nr, chrom);
     # Leaf nodes are either complete graphs or q-cliques. The chromatic number is then the 
     # smallest q-clique found.
-    if IsCompleteDigraph(D) then
-      chrom := Minimum(nr, chrom);
-    elif DigraphClique(D, [], [], q) = fail then
+    if not IsCompleteDigraph(D) and DigraphClique(D, [], [], chrom) = fail then
       # Get adjacency function
       adjacent := DigraphAdjacencyFunction(D);
       vertices := DigraphVertices(D);
@@ -695,22 +695,22 @@ function(D, Zykov)
          fi;
       od;
       DigraphRemoveVertices(D_contraction, [x, y]);
-      ZykovReduce(D_contraction, q);
+      ZykovReduce(D_contraction);
       # Colour the edge addition
       # This just adds symmetric edges between x and y;
       DigraphAddEdge(D, [x, y]);
       DigraphAddEdge(D, [y, x]);
-      ZykovReduce(D, q);
+      ZykovReduce(D);
       # Undo changes to the graph
       DigraphRemoveEdge(D, [x, y]);
       DigraphRemoveEdge(D, [y, x]);
     fi;
   end;
-  # Convert into a undirected graph.
+  # Algorithm requires an undirected graph.
   D := DigraphSymmetricClosure(DigraphMutableCopy(D));
   # Use greedy colouring as an upper bound
   chrom := RankOfTransformation(DigraphGreedyColouring(D), nr);
-  ZykovReduce(D, nr);
+  ZykovReduce(D);
   return chrom;
 end
 );
