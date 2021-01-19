@@ -636,7 +636,7 @@ end
 InstallMethod(ChromaticNumber, "for a digraph and colouring algorithm",
 [IsDigraph, IsDigraphColouringAlgorithm and IsDigraphColouringAlgorithmZykov],
 function(D, Zykov)
-  local nr, ZykovReduce;
+  local nr, ZykovReduce, chrom, lower_bound;
   nr := DigraphNrVertices(D);
   if DigraphHasLoops(D) then
     ErrorNoReturn("the argument <D> must be a digraph with no loops,");
@@ -653,9 +653,9 @@ function(D, Zykov)
     local nr, D_contraction, adjacent,vertices, vertex, x, y, u, found;
     nr := DigraphNrVertices(D);
     # Leaf nodes are either complete graphs or q-cliques. The chromatic number is then the 
-    # small q-clique found.
+    # smallest q-clique found.
     if IsCompleteDigraph(D) then
-      q := Minimum(nr, q);
+      chrom := Minimum(nr, chrom);
     elif DigraphClique(D, [], [], q) = fail then
       # Get adjacency function
       adjacent := DigraphAdjacencyFunction(D);
@@ -677,7 +677,7 @@ function(D, Zykov)
       Assert(1, x <> y, "x and y must be different");
       Assert(1, found, "No adjacent vertices");
       # Colour the vertex contraction.
-      # A contraction of a graph effectively merges two non adacent verticies
+      # A contraction of a graph effectively merges two non adjacent vertices
       # into a single new vertex with the edges merged.
       # New vertex to add.
       u := nr + 1;
@@ -695,21 +695,23 @@ function(D, Zykov)
          fi;
       od;
       DigraphRemoveVertices(D_contraction, [x, y]);
-      q := Minimum(q, ZykovReduce(D_contraction, q));
+      ZykovReduce(D_contraction, q);
       # Colour the edge addition
       # This just adds symmetric edges between x and y;
       DigraphAddEdge(D, [x, y]);
       DigraphAddEdge(D, [y, x]);
-      q := Minimum(q, ZykovReduce(D, q));
+      ZykovReduce(D, q);
       # Undo changes to the graph
       DigraphRemoveEdge(D, [x, y]);
       DigraphRemoveEdge(D, [y, x]);
     fi;
-    return q;
   end;
   # Convert into a undirected graph.
   D := DigraphSymmetricClosure(DigraphMutableCopy(D));
-  return ZykovReduce(D, nr);
+  # Use greedy colouring as an upper bound
+  chrom := RankOfTransformation(DigraphGreedyColouring(D), nr);
+  ZykovReduce(D, nr);
+  return chrom;
 end
 );
 
