@@ -4,3 +4,4 @@ DeclareCategory("IsDigraphColouringAlgorithm", IsDigraphAlgorithm);
 DeclareFilter("IsDigraphColouringAlgorithmByskov");
 DeclareFilter("IsDigraphColouringAlgorithmLawler");
 DeclareFilter("IsDigraphColouringAlgorithmZykov");
+DeclareFilter("IsDigraphColouringAlgorithmChristofides");
