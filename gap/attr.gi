@@ -715,6 +715,44 @@ function(D, Zykov)
 end
 );
 
+InstallMethod(ChromaticNumber, "for a digraph and colouring algorithm",
+[IsDigraph, IsDigraphColouringAlgorithm and IsDigraphColouringAlgorithmChristofides],
+function(D, Christofides)
+  local I, n, T, search_level;
+
+  nr := DigraphNrVertices(D);
+  if DigraphHasLoops(D) then
+    ErrorNoReturn("the argument <D> must be a digraph with no loops,");
+  elif n = 0 then
+    return 0;  # chromatic number = 0 iff <D> has 0 verts
+  elif IsNullDigraph(D) then
+    return 1;  # chromatic number = 1 iff <D> has >= 1 verts & no edges
+  elif IsBipartiteDigraph(D) then
+    return 2;  # chromatic number = 2 iff <D> has >= 2 verts & is bipartite
+               # <D> has at least 2 vertices at this stage
+  fi;
+  # Calculate all maximal independent sets of D.
+  I := DigraphMaximalIndependentSets(D);
+  # Upper bound for chromatic number.
+  chrom := nr;
+  # Set of vertices of D not in the current subgraph at level n.
+  T := [];
+  # Current search level of the subgraph tree.
+  search_level := 0;
+  # The maximal independent sets of V \ T at level n.
+  b := [[]];
+  # Would be jth colour class of the chromatic colouring of G.
+  c := [];
+  for i in [1..nr] do
+    Add(c, [i]);
+  od;
+  # Stores current unprocessed MIS's of V \ T at level 1 to level n
+  stack := [];
+  
+  return chrom;
+end
+);
+
 #
 # The following method is currently useless, as the OutNeighbours are computed
 # and set whenever a digraph is created.  It could be reinstated later if we
