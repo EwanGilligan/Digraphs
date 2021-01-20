@@ -1756,6 +1756,64 @@ gap> ChromaticNumber(gr, DigraphColouringAlgorithmByskov);
 gap> ChromaticNumber(gr, DigraphColouringAlgorithmByskov);
 3
 
+#  Test ChromaticNumber Zykov
+gap> ChromaticNumber(Digraph([[1]]), DigraphColouringAlgorithmZykov);
+Error, the argument <D> must be a digraph with no loops,
+gap> ChromaticNumber(NullDigraph(10), DigraphColouringAlgorithmZykov);
+1
+gap> ChromaticNumber(CompleteDigraph(10), DigraphColouringAlgorithmZykov);
+10
+gap> ChromaticNumber(CompleteBipartiteDigraph(5, 5), DigraphColouringAlgorithmZykov);
+2
+gap> ChromaticNumber(DigraphRemoveEdge(CompleteDigraph(10), [1, 2]), DigraphColouringAlgorithmZykov);
+10
+gap> ChromaticNumber(Digraph([[4, 8], [6, 10], [9], [2, 3, 9], [],
+> [3], [4], [6], [], [5, 7]]), DigraphColouringAlgorithmZykov);
+3
+gap> ChromaticNumber(DigraphDisjointUnion(CompleteDigraph(1),
+> Digraph([[2], [4], [1, 2], [3]])), DigraphColouringAlgorithmZykov);
+3
+gap> ChromaticNumber(DigraphDisjointUnion(CompleteDigraph(1),
+> Digraph([[2], [4], [1, 2], [3], [1, 2, 3]])), DigraphColouringAlgorithmZykov);
+4
+gap> gr := Digraph([[2, 3, 4], [3], [], []]);
+<immutable digraph with 4 vertices, 4 edges>
+gap> ChromaticNumber(gr, DigraphColouringAlgorithmZykov);
+3
+gap> ChromaticNumber(EmptyDigraph(0), DigraphColouringAlgorithmZykov);
+0
+gap> gr := CompleteDigraph(4);;
+gap> gr := DigraphAddVertex(gr);;
+gap> ChromaticNumber(gr, DigraphColouringAlgorithmZykov);
+4
+gap> gr := Digraph([[2, 4, 7, 3], [3, 5, 8, 1], [1, 6, 9, 2],
+> [5, 7, 1, 6], [6, 8, 2, 4], [4, 9, 3, 5], [8, 1, 4, 9], [9, 2, 5, 7],
+> [7, 3, 6, 8]]);;
+gap> ChromaticNumber(gr, DigraphColouringAlgorithmZykov);
+3
+gap> gr := DigraphSymmetricClosure(ChainDigraph(5));
+<immutable symmetric digraph with 5 vertices, 8 edges>
+gap> ChromaticNumber(gr, DigraphColouringAlgorithmZykov);
+2
+gap> gr := DigraphFromGraph6String("KmKk~K??G@_@");
+<immutable digraph with 12 vertices, 42 edges>
+gap> ChromaticNumber(gr, DigraphColouringAlgorithmZykov);
+4
+gap> gr := CycleDigraph(7);
+<immutable cycle digraph with 7 vertices>
+gap> ChromaticNumber(gr, DigraphColouringAlgorithmZykov);
+3
+gap> ChromaticNumber(gr, DigraphColouringAlgorithmZykov);
+3
+gap> ChromaticNumber(gr, DigraphColouringAlgorithmZykov);
+3
+gap> a := DigraphRemoveEdges(CompleteDigraph(50), [[1, 2], [2, 1]]);;
+gap> b := DigraphAddVertex(a);;
+gap> ChromaticNumber(a, DigraphColouringAlgorithmZykov);
+49
+gap> ChromaticNumber(b, DigraphColouringAlgorithmZykov);
+49
+
 #  DegreeMatrix
 gap> gr := Digraph([[2, 3, 4], [2, 5], [1, 5, 4], [1], [1, 1, 2, 4]]);;
 gap> DegreeMatrix(gr);
