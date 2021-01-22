@@ -716,7 +716,7 @@ end
 InstallMethod(ChromaticNumber, "for a digraph and colouring algorithm",
 [IsDigraph, IsDigraphColouringAlgorithm and IsDigraphColouringAlgorithmChristofides],
 function(D, Christofides)
-  local I, n, T, search_level;
+  local I, n, T, b, unprocessed, i, v_without_t, j, u, min_occurences, cur_occurences;
 
   nr := DigraphNrVertices(D);
   if DigraphHasLoops(D) then
@@ -729,24 +729,85 @@ function(D, Christofides)
     return 2;  # chromatic number = 2 iff <D> has >= 2 verts & is bipartite
                # <D> has at least 2 vertices at this stage
   fi;
+  # Initialise the required variables.
   # Calculate all maximal independent sets of D.
   I := DigraphMaximalIndependentSets(D);
   # Upper bound for chromatic number.
   chrom := nr;
   # Set of vertices of D not in the current subgraph at level n.
   T := [];
+  vertices := DigraphVertices(T);
   # Current search level of the subgraph tree.
-  search_level := 0;
+  n := 0;
   # The maximal independent sets of V \ T at level n.
   b := [[]];
+  # Number of unprocessed MIS's of V \ T at level n
+  unprocessed := [0];
   # Would be jth colour class of the chromatic colouring of G.
-  c := [];
-  for i in [1..nr] do
-    Add(c, [i]);
-  od;
+  c := [1..nr];
   # Stores current unprocessed MIS's of V \ T at level 1 to level n
   stack := [];
-  
+  # Now perform the search.
+  repeat 
+    # Step 2
+    if n < chrom then
+      # T = T \ b[n]
+      T := RemoveSet(T, b[n]);
+      # Step 3
+      if V = T then
+        chrom = n;   
+        T := SubtractSet(T, b[n]);
+        for i in [1..chrom] do
+          c[i] = b[i]
+        od;
+      else 
+        # Step 4
+        # Compute the maximal independent sets of V \ T
+        v_without_t := ListX(I, i -> Filtered(i, not j in T));  
+        # Step 5
+        # Pick u in V \ T such that u is in the few maximal independent sets.
+        # TODO possibly remove this by skipping elements of T.
+        SubtractSet(vertices, T);
+        u := -1;
+        min_occurences := infinity;
+        for i in vertices do
+          cur_occurences := 0;
+          for j in v_without_t do
+            if i in j then
+              cur_occurences := cur_occurences + 1;
+            fi;
+          od;
+          if cur_occurences < min_occurences do
+            min_occurences := cur_occurences;
+            u := i; 
+          od; 
+        od;
+        # Undo changes to vertices.
+        UniteSet(vertices, T);
+        Assert(1, u <> -1, "Vertex must be picked"):
+        # Remove maximal independent sets not containing u.
+        v_without_t := Filtered(v_without_t, x -> u in x);
+        Append(stack, v_without_t);
+        n := n + 1;
+        Add(unprocessed, Length(v_without_t));
+      fi;
+    fi;
+    # Step 6
+    while n <> 0 then
+      # step 7
+      if unprocessed[n] = 0 then
+        n := n - 1;
+        SubtractSet(T, b[n]);
+      else
+        # Step 8
+        # take an element from the top of the stack
+        i := Remove(stack);
+        unprocessed[n] := unprocessed[n] - 1;
+        UniteSet(T, i);
+        break;
+      fi;
+    fi;
+  until n = 0;
   return chrom;
 end
 );
