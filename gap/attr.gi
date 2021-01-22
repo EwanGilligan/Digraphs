@@ -609,18 +609,16 @@ function(D, Byskov)
     # Index the current subset that is being iterated over
     i := index_subsets(s);
     if 4 <= subset_colours[i] and subset_colours[i] < infinity then
+      # Bound the size of sets we need to consider
       k := 1;
       while k <= Length(s) / subset_colours[i] do
         # Iterate over the maximal independent sets of D[V \ S]
         for I in DigraphMaximalIndependentSets(D, [], s, infinity, k) do
-          # Bound the size of sets we need to consider
           # TODO Filter maximal independent set sizes during calculation
           # The current method does do this by iterating the possible sizes
           # But it would be better if we could find all independent sets up
           # to a given size in a single call
           s_copy := ShallowCopy(s);
-          # Union with I, but need to relabel the induced subgraph
-          # labels back to their original labels
           UniteSet(s_copy, I);
           j := index_subsets(s_copy);
           subset_colours[j] := Minimum(subset_colours[j], subset_colours[i] + 1);
