@@ -294,7 +294,7 @@ InstallMethod(ChromaticNumber, "for a digraph and colouring algorithm",
 [IsDigraph, IsDigraphColouringAlgorithm and IsDigraphColouringAlgorithmLawler],
 function(D, Lawler)
   local n, vertices, subset_colours, s, S, i, I, subset_iter,
-  induced_subgraph;
+  induced_subgraph, labels;
 
   n := DigraphNrVertices(D);
   if DigraphHasLoops(D) then
@@ -322,12 +322,13 @@ function(D, Lawler)
     # Index the current subset that is being iterated over.
     S := Sum(s, x -> 2 ^ (x - 1)) + 1;
     induced_subgraph := InducedSubdigraph(D, s);
+    # The induced subgraph changes the vertices, so we'll need to relabel
+    # the vertices back to their original value.
+    labels := DigraphVertexLabels(induced_subgraph);
     # Iterate over the maximal independent sets of D[S]
     for I in DigraphMaximalIndependentSets(induced_subgraph) do
         # Calculate S \ I. This is destructive, but is undone.
-        # A relabelling is required, as the vertices of induced subgraph
-        # are changed from what they were originally.
-        SubtractSet(s, SetX(I, x -> DigraphVertexLabel(induced_subgraph, x)));
+        SubtractSet(s, SetX(I, x -> labels[x]));
         # Index S \ I
         i := Sum(s, x -> 2 ^ (x - 1)) + 1;
         # The chromatic number of this subset is the minimum value of all
