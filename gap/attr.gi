@@ -733,7 +733,6 @@ function(D, Christofides)
   # Initialise the required variables.
   # Calculate all maximal independent sets of D.
   I := DigraphMaximalIndependentSets(D);
-  Print(I, "\n");
   # Upper bound for chromatic number.
   chrom := nr;
   # Set of vertices of D not in the current subgraph at level n.
