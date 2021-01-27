@@ -717,7 +717,7 @@ InstallMethod(ChromaticNumber, "for a digraph and colouring algorithm",
 [IsDigraph, IsDigraphColouringAlgorithm and IsDigraphColouringAlgorithmChristofides],
 function(D, Christofides)
   local nr, I, n, T, b, unprocessed, i, v_without_t, j, u, min_occurences, cur_occurences,
-  chrom, c, stack, vertices;
+  chrom, c, stack, vertices, v_without_t_temp;
 
   nr := DigraphNrVertices(D);
   if DigraphHasLoops(D) then
@@ -733,11 +733,12 @@ function(D, Christofides)
   # Initialise the required variables.
   # Calculate all maximal independent sets of D.
   I := DigraphMaximalIndependentSets(D);
+  Print(I, "\n");
   # Upper bound for chromatic number.
   chrom := nr;
   # Set of vertices of D not in the current subgraph at level n.
   T := [];
-  vertices := DigraphVertices(D);
+  vertices := List(DigraphVertices(D));
   # Current search level of the subgraph tree.
   n := 0;
   # The maximal independent sets of V \ T at level n.
@@ -752,19 +753,28 @@ function(D, Christofides)
   repeat 
     # Step 2
     if n < chrom then
-      # T = T \ b[n]
-      T := RemoveSet(T, b[n]);
       # Step 3
       if vertices = T then
         chrom := n;   
-        T := SubtractSet(T, b[n]);
+        SubtractSet(T, b[n+1]);
         for i in [1..chrom] do
           c[i] := b[i];
         od;
       else 
         # Step 4
         # Compute the maximal independent sets of V \ T
-        v_without_t := ListX(I, i -> Filtered(i, not j in T));  
+        # First remove all vertices in T
+        v_without_t_temp := Set(I, i -> Filtered(i, j -> not j in T));  
+        v_without_t := [];
+        # Then remove any sets which are no longer maximal
+        # Sort in decreasing size
+        Sort(v_without_t_temp, {x, y} -> Length(x) > Length(y));
+        # Then check elements from back to front for if they are a subset
+        for i in v_without_t_temp do
+            if ForAll(v_without_t, x -> not IsSubsetSet(x, i)) then
+              Add(v_without_t, i);
+            fi;
+        od;
         # Step 5
         # Pick u in V \ T such that u is in the few maximal independent sets.
         # TODO possibly remove this by skipping elements of T.
@@ -785,25 +795,30 @@ function(D, Christofides)
         od;
         # Undo changes to vertices.
         UniteSet(vertices, T);
-        Assert(1, u <> -1, "Vertex must be picked");
+        Assert(0, u <> -1, "Vertex must be picked");
         # Remove maximal independent sets not containing u.
         v_without_t := Filtered(v_without_t, x -> u in x);
+        Assert(0, ForAll(v_without_t, x -> not x in stack));
         Append(stack, v_without_t);
         n := n + 1;
         Add(unprocessed, Length(v_without_t));
       fi;
+    else 
+      # if n >= g then T = T \ b[n]
+      SubtractSet(T, b[n+1]);
     fi;
     # Step 6
     while n <> 0 do 
       # step 7
-      if unprocessed[n] = 0 then
+      if unprocessed[n+1] = 0 then
         n := n - 1;
-        SubtractSet(T, b[n]);
+        SubtractSet(T, b[n+1]);
       else
         # Step 8
         # take an element from the top of the stack
         i := Remove(stack);
-        unprocessed[n] := unprocessed[n] - 1;
+        unprocessed[n+1] := unprocessed[n+1] - 1;
+        b[n+1] := i;
         UniteSet(T, i);
         break;
       fi;
