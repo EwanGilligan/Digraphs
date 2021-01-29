@@ -717,7 +717,7 @@ InstallMethod(ChromaticNumber, "for a digraph and colouring algorithm",
 [IsDigraph, IsDigraphColouringAlgorithm and IsDigraphColouringAlgorithmChristofides],
 function(D, Christofides)
   local nr, I, n, T, b, unprocessed, i, v_without_t, j, u, min_occurences, cur_occurences,
-  chrom, c, stack, vertices, v_without_t_temp;
+  chrom, colouring, stack, vertices, v_without_t_temp;
 
   nr := DigraphNrVertices(D);
   if DigraphHasLoops(D) then
@@ -737,15 +737,15 @@ function(D, Christofides)
   chrom := nr;
   # Set of vertices of D not in the current subgraph at level n.
   T := [];
-  vertices := List(DigraphVertices(D));
+  vertices := DigraphVertices(D);
   # Current search level of the subgraph tree.
   n := 0;
   # The maximal independent sets of V \ T at level n.
   b := [[]];
-  # Number of unprocessed MIS's of V \ T at level n
-  unprocessed := [0];
+  # Number of unprocessed MIS's of V \ T from level 1 to n
+  unprocessed := ListWithIdenticalEntries(nr, 0);
   # Would be jth colour class of the chromatic colouring of G.
-  c := List([1..nr], i -> [i]);
+  colouring := List([1..nr], i -> [i]);
   # Stores current unprocessed MIS's of V \ T at level 1 to level n
   stack := [];
   # Now perform the search.
@@ -753,11 +753,12 @@ function(D, Christofides)
     # Step 2
     if n < chrom then
       # Step 3
-      if vertices = T then
+      if IsEqualSet(vertices, T) then
         chrom := n;   
         SubtractSet(T, b[n+1]);
         for i in [1..chrom] do
-          c[i] := b[i];
+          colouring[i] := b[i];
+          # TODO set colouring attribute
         od;
       else 
         # Step 4
@@ -776,11 +777,13 @@ function(D, Christofides)
         od;
         # Step 5
         # Pick u in V \ T such that u is in the few maximal independent sets.
-        # TODO possibly remove this by skipping elements of T.
-        SubtractSet(vertices, T);
         u := -1;
         min_occurences := infinity;
         for i in vertices do
+          # Skip elements of T.
+          if i in T then
+            continue;
+          fi;
           cur_occurences := 0;
           for j in v_without_t do
             if i in j then
@@ -792,31 +795,31 @@ function(D, Christofides)
             u := i; 
           fi; 
         od;
-        # Undo changes to vertices.
-        UniteSet(vertices, T);
-        Assert(0, u <> -1, "Vertex must be picked");
+        Assert(1, u <> -1, "Vertex must be picked");
         # Remove maximal independent sets not containing u.
         v_without_t := Filtered(v_without_t, x -> u in x);
-        Assert(0, ForAll(v_without_t, x -> not x in stack));
+        # Add these MISs to the stack
         Append(stack, v_without_t);
+        # Search has moved one level deeper
         n := n + 1;
-        Add(unprocessed, Length(v_without_t));
+        unprocessed[n] := Length(v_without_t);
       fi;
     else 
       # if n >= g then T = T \ b[n]
+      # This exceeds the current best bound, so stop search.
       SubtractSet(T, b[n+1]);
     fi;
     # Step 6
     while n <> 0 do 
       # step 7
-      if unprocessed[n+1] = 0 then
+      if unprocessed[n] = 0 then
         n := n - 1;
         SubtractSet(T, b[n+1]);
       else
         # Step 8
         # take an element from the top of the stack
         i := Remove(stack);
-        unprocessed[n+1] := unprocessed[n+1] - 1;
+        unprocessed[n] := unprocessed[n] - 1;
         b[n+1] := i;
         UniteSet(T, i);
         break;
