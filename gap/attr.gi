@@ -730,22 +730,24 @@ function(D, Christofides)
     return 2;  # chromatic number = 2 iff <D> has >= 2 verts & is bipartite
                # <D> has at least 2 vertices at this stage
   fi;
+  vertices := List(DigraphVertices(D));
   # Initialise the required variables.
   # Calculate all maximal independent sets of D.
   I := DigraphMaximalIndependentSets(D);
+  # Convert each MIS into a BList
+  I := List(I, i -> BlistList(vertices, i)); 
   # Upper bound for chromatic number.
   chrom := nr;
   # Set of vertices of D not in the current subgraph at level n.
-  T := [];
-  vertices := DigraphVertices(D);
+  T := ListWithIdenticalEntries(nr, false);
   # Current search level of the subgraph tree.
   n := 0;
   # The maximal independent sets of V \ T at level n.
-  b := [[]];
+  b := [ListWithIdenticalEntries(nr, false)];
   # Number of unprocessed MIS's of V \ T from level 1 to n
   unprocessed := ListWithIdenticalEntries(nr, 0);
   # Would be jth colour class of the chromatic colouring of G.
-  colouring := List([1..nr], i -> [i]);
+  colouring := List([1..nr], i -> BlistList(vertices, [i]));
   # Stores current unprocessed MIS's of V \ T at level 1 to level n
   stack := [];
   # Now perform the search.
@@ -753,9 +755,10 @@ function(D, Christofides)
     # Step 2
     if n < chrom then
       # Step 3
-      if IsEqualSet(vertices, T) then
+      # If V = T then we've reached a null subgraph
+      if SizeBlist(T) = nr then
         chrom := n;   
-        SubtractSet(T, b[n+1]);
+        SubtractBlist(T, b[n+1]);
         for i in [1..chrom] do
           colouring[i] := b[i];
           # TODO set colouring attribute
@@ -764,14 +767,14 @@ function(D, Christofides)
         # Step 4
         # Compute the maximal independent sets of V \ T
         # First remove all vertices in T
-        v_without_t_temp := Set(I, i -> Filtered(i, j -> not j in T));  
+        v_without_t_temp := List(I, i -> DifferenceBlist(i, T));  
         v_without_t := [];
         # Then remove any sets which are no longer maximal
         # Sort in decreasing size
-        Sort(v_without_t_temp, {x, y} -> Length(x) > Length(y));
+        Sort(v_without_t_temp, {x, y} -> SizeBlist(x) > SizeBlist(y));
         # Then check elements from back to front for if they are a subset
         for i in v_without_t_temp do
-            if ForAll(v_without_t, x -> not IsSubsetSet(x, i)) then
+            if ForAll(v_without_t, x -> not IsSubsetBlist(x, i)) then
               Add(v_without_t, i);
             fi;
         od;
@@ -781,12 +784,12 @@ function(D, Christofides)
         min_occurences := infinity;
         for i in vertices do
           # Skip elements of T.
-          if i in T then
+          if T[i] then
             continue;
           fi;
           cur_occurences := 0;
           for j in v_without_t do
-            if i in j then
+            if j[i] then
               cur_occurences := cur_occurences + 1;
             fi;
           od;
@@ -797,7 +800,7 @@ function(D, Christofides)
         od;
         Assert(1, u <> -1, "Vertex must be picked");
         # Remove maximal independent sets not containing u.
-        v_without_t := Filtered(v_without_t, x -> u in x);
+        v_without_t := Filtered(v_without_t, x -> x[u]);
         # Add these MISs to the stack
         Append(stack, v_without_t);
         # Search has moved one level deeper
@@ -807,21 +810,21 @@ function(D, Christofides)
     else 
       # if n >= g then T = T \ b[n]
       # This exceeds the current best bound, so stop search.
-      SubtractSet(T, b[n+1]);
+      SubtractBlist(T, b[n+1]);
     fi;
     # Step 6
     while n <> 0 do 
       # step 7
       if unprocessed[n] = 0 then
         n := n - 1;
-        SubtractSet(T, b[n+1]);
+        SubtractBlist(T, b[n+1]);
       else
         # Step 8
         # take an element from the top of the stack
         i := Remove(stack);
         unprocessed[n] := unprocessed[n] - 1;
         b[n+1] := i;
-        UniteSet(T, i);
+        UniteBlist(T, i);
         break;
       fi;
     od;
