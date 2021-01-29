@@ -776,7 +776,7 @@ function(D, Christofides)
             fi;
         od;
         # Step 5
-        # Pick u in V \ T such that u is in the few maximal independent sets.
+        # Pick u in V \ T such that u is in the fewest maximal independent sets.
         u := -1;
         min_occurences := infinity;
         for i in vertices do
