@@ -634,7 +634,7 @@ end
 InstallMethod(ChromaticNumber, "for a digraph and colouring algorithm",
 [IsDigraph, IsDigraphColouringAlgorithm and IsDigraphColouringAlgorithmZykov],
 function(D, Zykov)
-  local nr, ZykovReduce, chrom, lower_bound;
+  local nr, ZykovReduce, chrom;
   nr := DigraphNrVertices(D);
   if DigraphHasLoops(D) then
     ErrorNoReturn("the argument <D> must be a digraph with no loops,");
@@ -647,13 +647,13 @@ function(D, Zykov)
                # <D> has at least 2 vertices at this stage
   fi;
   # Recursive function call
-  ZykovReduce := function(D) 
-    local nr, D_contraction, adjacent,vertices, vertex, x, y, u, found;
+  ZykovReduce := function(D)
+    local nr, D_contraction, adjacent, vertices, vertex, x, y, u, found;
     nr := DigraphNrVertices(D);
     # Update upper bound if possible.
     chrom := Minimum(nr, chrom);
-    # Leaf nodes are either complete graphs or q-cliques. The chromatic number is then the 
-    # smallest q-clique found.
+    # Leaf nodes are either complete graphs or q-cliques. The chromatic number is
+    # then the smallest q-clique found.
     if not IsCompleteDigraph(D) and DigraphClique(D, [], [], chrom) = fail then
       # Get adjacency function
       adjacent := DigraphAdjacencyFunction(D);
@@ -663,7 +663,7 @@ function(D, Zykov)
       found := false;
       for x in vertices do
         for y in vertices do
-          if x <> y and not adjacent(x, y) and not adjacent(y,x) then
+          if x <> y and not adjacent(x, y) and not adjacent(y, x) then
             found := true;
             break;
           fi;
@@ -681,13 +681,13 @@ function(D, Zykov)
       u := nr + 1;
       D_contraction := DigraphMutableCopy(D);
       DigraphAddVertex(D_contraction, u);
-      for vertex in vertices do 
-         # Iterate over all vertices that 
+      for vertex in vertices do
+         # Iterate over all vertices that
          if vertex = x or vertex = y then
            continue;
          fi;
          if adjacent(x, vertex) or adjacent(vertex, x)
-           or adjacent(y, vertex) or adjacent(vertex, y) then
+            or adjacent(y, vertex) or adjacent(vertex, y) then
             DigraphAddEdge(D_contraction, u, vertex);
             DigraphAddEdge(D_contraction, vertex, u);
          fi;
@@ -714,10 +714,11 @@ end
 );
 
 InstallMethod(ChromaticNumber, "for a digraph and colouring algorithm",
-[IsDigraph, IsDigraphColouringAlgorithm and IsDigraphColouringAlgorithmChristofides],
+[IsDigraph,
+ IsDigraphColouringAlgorithm and IsDigraphColouringAlgorithmChristofides],
 function(D, Christofides)
-  local nr, I, n, T, b, unprocessed, i, v_without_t, j, u, min_occurences, cur_occurences,
-  chrom, colouring, stack, vertices, v_without_t_temp;
+  local nr, I, n, T, b, unprocessed, i, v_without_t, j, u, min_occurences,
+  cur_occurences, chrom, colouring, stack, vertices, v_without_t_temp;
 
   nr := DigraphNrVertices(D);
   if DigraphHasLoops(D) then
@@ -735,7 +736,7 @@ function(D, Christofides)
   # Calculate all maximal independent sets of D.
   I := DigraphMaximalIndependentSets(D);
   # Convert each MIS into a BList
-  I := List(I, i -> BlistList(vertices, i)); 
+  I := List(I, i -> BlistList(vertices, i));
   # Upper bound for chromatic number.
   chrom := nr;
   # Set of vertices of D not in the current subgraph at level n.
@@ -747,7 +748,7 @@ function(D, Christofides)
   # Number of unprocessed MIS's of V \ T from level 1 to n
   unprocessed := ListWithIdenticalEntries(nr, 0);
   # Would be jth colour class of the chromatic colouring of G.
-  colouring := List([1..nr], i -> BlistList(vertices, [i]));
+  colouring := List([1 .. nr], i -> BlistList(vertices, [i]));
   # Stores current unprocessed MIS's of V \ T at level 1 to level n
   stack := [];
   # Now perform the search.
@@ -757,17 +758,17 @@ function(D, Christofides)
       # Step 3
       # If V = T then we've reached a null subgraph
       if SizeBlist(T) = nr then
-        chrom := n;   
-        SubtractBlist(T, b[n+1]);
-        for i in [1..chrom] do
+        chrom := n;
+        SubtractBlist(T, b[n + 1]);
+        for i in [1 .. chrom] do
           colouring[i] := b[i];
           # TODO set colouring attribute
         od;
-      else 
+      else
         # Step 4
         # Compute the maximal independent sets of V \ T
         # First remove all vertices in T
-        v_without_t_temp := List(I, i -> DifferenceBlist(i, T));  
+        v_without_t_temp := List(I, i -> DifferenceBlist(i, T));
         v_without_t := [];
         # Then remove any sets which are no longer maximal
         # Sort in decreasing size
@@ -795,7 +796,7 @@ function(D, Christofides)
           od;
           if cur_occurences < min_occurences then
             min_occurences := cur_occurences;
-            u := i; 
+            u := i;
           fi; 
         od;
         Assert(1, u <> -1, "Vertex must be picked");
@@ -807,23 +808,23 @@ function(D, Christofides)
         n := n + 1;
         unprocessed[n] := Length(v_without_t);
       fi;
-    else 
+    else
       # if n >= g then T = T \ b[n]
       # This exceeds the current best bound, so stop search.
-      SubtractBlist(T, b[n+1]);
+      SubtractBlist(T, b[n + 1]);
     fi;
     # Step 6
-    while n <> 0 do 
+    while n <> 0 do
       # step 7
       if unprocessed[n] = 0 then
         n := n - 1;
-        SubtractBlist(T, b[n+1]);
+        SubtractBlist(T, b[n + 1]);
       else
         # Step 8
         # take an element from the top of the stack
         i := Remove(stack);
         unprocessed[n] := unprocessed[n] - 1;
-        b[n+1] := i;
+        b[n + 1] := i;
         UniteBlist(T, i);
         break;
       fi;
