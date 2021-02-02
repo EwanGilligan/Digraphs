@@ -752,7 +752,7 @@ function(D, Christofides)
   # Stores current unprocessed MIS's of V \ T at level 1 to level n
   stack := [];
   # Now perform the search.
-  repeat 
+  repeat
     # Step 2
     if n < chrom then
       # Step 3
@@ -797,7 +797,7 @@ function(D, Christofides)
           if cur_occurences < min_occurences then
             min_occurences := cur_occurences;
             u := i;
-          fi; 
+          fi;
         od;
         Assert(1, u <> -1, "Vertex must be picked");
         # Remove maximal independent sets not containing u.
