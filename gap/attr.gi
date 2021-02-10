@@ -290,6 +290,27 @@ function(D)
   return chrom;
 end);
 
+# Utility function to calculate the maximal independent sets (as BLists) of a subgraph induced by
+# removing a set of vertices.
+BindGlobal("DIGRAPHS_MaximalIndependentSetsFromSubtractedSet",
+function(I, subtracted_set)
+  local induced_mis, temp, i;
+  # First remove all vertices in the subtracted set from each MIS 
+  temp := List(I, i -> DifferenceBlist(i, subtracted_set));
+  induced_mis := [];
+  # Then remove any sets which are no longer maximal
+  # Sort in decreasing size
+  Sort(temp, {x, y} -> SizeBlist(x) > SizeBlist(y));
+  # Then check elements from back to front for if they are a subset
+  for i in temp do
+    if ForAll(induced_mis, x -> not IsSubsetBlist(x, i)) then
+      Add(induced_mis, i);
+    fi;
+  od;
+  return induced_mis;
+end
+);
+
 InstallMethod(ChromaticNumber, "for a digraph and colouring algorithm",
 [IsDigraph, IsDigraphColouringAlgorithm and IsDigraphColouringAlgorithmLawler],
 function(D, Lawler)
