@@ -315,7 +315,7 @@ InstallMethod(ChromaticNumber, "for a digraph and colouring algorithm",
 [IsDigraph, IsDigraphColouringAlgorithm and IsDigraphColouringAlgorithmLawler],
 function(D, Lawler)
   local n, vertices, subset_colours, s, S, i, I, subset_iter, x,
-  MIS;
+  MIS, subset_MIS;
 
   n := DigraphNrVertices(D);
   if DigraphHasLoops(D) then
@@ -350,11 +350,13 @@ function(D, Lawler)
         s := s + 2 ^ (x - 1);
       fi;
     od;
-    Print(s, "\n");
     # Get the set complement, used for the MIS calculation
-    FlipBlist(S);
+    FlipBlist(S); 
     # Iterate over the maximal independent sets of V[S] 
-    for I in DIGRAPHS_MaximalIndependentSetsFromSubtractedSet(MIS, S) do
+    subset_MIS := DIGRAPHS_MaximalIndependentSetsFromSubtractedSet(MIS, S); 
+    # Undo the changes
+    FlipBlist(S);
+    for I in subset_MIS do
         # Calculate S \ I. This is destructive, but is undone.
         SubtractBlist(S, I);
         # Index S \ I
@@ -371,7 +373,6 @@ function(D, Lawler)
         UniteBlist(S, I);
     od;
   od;
-  Print(subset_colours, "\n");
   return subset_colours[2 ^ n];
 end
 );
