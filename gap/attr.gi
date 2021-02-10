@@ -314,8 +314,8 @@ end
 InstallMethod(ChromaticNumber, "for a digraph and colouring algorithm",
 [IsDigraph, IsDigraphColouringAlgorithm and IsDigraphColouringAlgorithmLawler],
 function(D, Lawler)
-  local n, vertices, subset_colours, s, S, i, I, subset_iter,
-  induced_subgraph, labels;
+  local n, vertices, subset_colours, s, S, i, I, subset_iter, x,
+  MIS;
 
   n := DigraphNrVertices(D);
   if DigraphHasLoops(D) then
@@ -328,37 +328,50 @@ function(D, Lawler)
     return 2;  # chromatic number = 2 iff <D> has >= 2 verts & is bipartite
                # <D> has at least 2 vertices at this stage
   fi;
-
-  vertices := DigraphVertices(D);
+  vertices := List(DigraphVertices(D));
+  MIS := DigraphMaximalIndependentSets(D);
+  # Convert each MIS to a Blist
+  MIS := List(MIS, x -> BlistList(vertices, x)); 
   # Store current best colouring for each subset
   subset_colours := ListWithIdenticalEntries(2 ^ n, infinity);
   # Empty set can be colouring with only one colour.
   subset_colours[1] := 0;
   subset_iter := IteratorOfCombinations(vertices);
   # Skip the first one, which should be the empty set.
-  s := NextIterator(subset_iter);
+  S := NextIterator(subset_iter);
   Assert(1, IsEmpty(s), "Should be empty set first");
   # Iterate over all vertex subsets.
-  for s in subset_iter do
+  for S in subset_iter do
+    S := BlistList(vertices, S);
     # Index the current subset that is being iterated over.
-    S := Sum(s, x -> 2 ^ (x - 1)) + 1;
-    induced_subgraph := InducedSubdigraph(D, s);
-    # The induced subgraph changes the vertices, so we'll need to relabel
-    # the vertices back to their original value.
-    labels := DigraphVertexLabels(induced_subgraph);
-    # Iterate over the maximal independent sets of D[S]
-    for I in DigraphMaximalIndependentSets(induced_subgraph) do
+    s := 1;
+    for x in [1..n] do
+      if S[x] then
+        s := s + 2 ^ (x - 1);
+      fi;
+    od;
+    Print(s, "\n");
+    # Get the set complement, used for the MIS calculation
+    FlipBlist(S);
+    # Iterate over the maximal independent sets of V[S] 
+    for I in DIGRAPHS_MaximalIndependentSetsFromSubtractedSet(MIS, S) do
         # Calculate S \ I. This is destructive, but is undone.
-        SubtractSet(s, SetX(I, x -> labels[x]));
+        SubtractBlist(S, I);
         # Index S \ I
-        i := Sum(s, x -> 2 ^ (x - 1)) + 1;
+        i := 1;
+        for x in [1..n] do
+          if S[x] then
+            i := i + 2 ^ (x - 1);
+          fi;
+        od;
         # The chromatic number of this subset is the minimum value of all
         # the maximal independent subsets of D[S].
-        subset_colours[S] := Minimum(subset_colours[S], subset_colours[i] + 1);
+        subset_colours[s] := Minimum(subset_colours[s], subset_colours[i] + 1);
         # Undo the changes to the subset.
-        UniteSet(s, SetX(I, x -> DigraphVertexLabel(induced_subgraph, x)));
+        UniteBlist(S, I);
     od;
   od;
+  Print(subset_colours, "\n");
   return subset_colours[2 ^ n];
 end
 );
