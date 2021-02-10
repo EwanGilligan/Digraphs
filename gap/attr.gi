@@ -663,7 +663,7 @@ function(D, Zykov)
       found := false;
       for x in vertices do
         for y in [x + 1 .. nr] do
-          if x <> y and not adjacent(x, y) and not adjacent(y, x) then
+          if not adjacent(x, y) then
             found := true;
             break;
           fi;
