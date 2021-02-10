@@ -717,7 +717,7 @@ InstallMethod(ChromaticNumber, "for a digraph and colouring algorithm",
  IsDigraphColouringAlgorithm and IsDigraphColouringAlgorithmChristofides],
 function(D, Christofides)
   local nr, I, n, T, b, unprocessed, i, v_without_t, j, u, min_occurences,
-  cur_occurences, chrom, colouring, stack, vertices, v_without_t_temp;
+  cur_occurences, chrom, colouring, stack, vertices;
 
   nr := DigraphNrVertices(D);
   if DigraphHasLoops(D) then
@@ -766,18 +766,7 @@ function(D, Christofides)
       else
         # Step 4
         # Compute the maximal independent sets of V \ T
-        # First remove all vertices in T
-        v_without_t_temp := List(I, i -> DifferenceBlist(i, T));
-        v_without_t := [];
-        # Then remove any sets which are no longer maximal
-        # Sort in decreasing size
-        Sort(v_without_t_temp, {x, y} -> SizeBlist(x) > SizeBlist(y));
-        # Then check elements from back to front for if they are a subset
-        for i in v_without_t_temp do
-            if ForAll(v_without_t, x -> not IsSubsetBlist(x, i)) then
-              Add(v_without_t, i);
-            fi;
-        od;
+        v_without_t := DIGRAPHS_MaximalIndependentSetsFromSubtractedSet(I, T);
         # Step 5
         # Pick u in V \ T such that u is in the fewest maximal independent sets.
         u := -1;
