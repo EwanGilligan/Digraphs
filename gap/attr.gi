@@ -634,7 +634,7 @@ end
 InstallMethod(ChromaticNumber, "for a digraph and colouring algorithm",
 [IsDigraph, IsDigraphColouringAlgorithm and IsDigraphColouringAlgorithmZykov],
 function(D, Zykov)
-  local nr, ZykovReduce, chrom, new_vertex;
+  local nr, ZykovReduce, chrom;
   nr := DigraphNrVertices(D);
   if DigraphHasLoops(D) then
     ErrorNoReturn("the argument <D> must be a digraph with no loops,");
@@ -646,7 +646,6 @@ function(D, Zykov)
     return 2;  # chromatic number = 2 iff <D> has >= 2 verts & is bipartite
                # <D> has at least 2 vertices at this stage
   fi;
-  new_vertex := nr;
   # Recursive function call
   ZykovReduce := function(D)
     local nr, D_contraction, adjacent, vertices, vertex, x, y, u, found;
@@ -678,12 +677,10 @@ function(D, Zykov)
       # Colour the vertex contraction.
       # A contraction of a graph effectively merges two non adjacent vertices
       # into a single new vertex with the edges merged.
-      # New vertex to add.
-      new_vertex := new_vertex + 1;
       # Index of the new vertex
       u := nr + 1;
       D_contraction := DigraphMutableCopy(D);
-      DigraphAddVertex(D_contraction, new_vertex);
+      DigraphAddVertex(D_contraction, u);
       for vertex in vertices do
          # Iterate over all vertices that
          if vertex = x or vertex = y then
