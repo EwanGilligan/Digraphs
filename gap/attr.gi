@@ -292,7 +292,7 @@ end);
 
 # Utility function to calculate the maximal independent sets (as BLists) of a
 # subgraph induced by removing a set of vertices.
-BindGlobal("DIGRAPHS_MaximalIndependentSetsFromSubtractedSet",
+BindGlobal("DIGRAPHS_MaximalIndependentSetsSubtractedSet",
 function(I, subtracted_set, size_bound)
   local induced_mis, temp, i;
   # First remove all vertices in the subtracted set from each MIS
@@ -304,7 +304,7 @@ function(I, subtracted_set, size_bound)
   # Then check elements from back to front for if they are a subset
   for i in temp do
     if SizeBlist(i) <= size_bound and
-       ForAll(induced_mis, x -> not IsSubsetBlist(x, i)) then
+        ForAll(induced_mis, x -> not IsSubsetBlist(x, i)) then
       Add(induced_mis, i);
     fi;
   od;
@@ -334,7 +334,7 @@ function(D, Lawler)
   # calculating the maximal independent sets of induced subgraphs.
   MIS := DigraphMaximalIndependentSets(D);
   # Convert each MIS to a Blist
-  MIS := List(MIS, x -> BlistList(vertices, x)); 
+  MIS := List(MIS, x -> BlistList(vertices, x));
   # Store current best colouring for each subset
   subset_colours := ListWithIdenticalEntries(2 ^ n, infinity);
   # Empty set can be colouring with only one colour.
@@ -359,7 +359,7 @@ function(D, Lawler)
     # Get the set complement, used for the MIS calculation
     FlipBlist(S);
     # Iterate over the maximal independent sets of V[S]
-    subset_MIS := DIGRAPHS_MaximalIndependentSetsFromSubtractedSet(MIS, S, infinity);
+    subset_MIS := DIGRAPHS_MaximalIndependentSetsSubtractedSet(MIS, S, infinity);
     # Undo the changes
     FlipBlist(S);
     for I in subset_MIS do
@@ -460,9 +460,9 @@ function(D, Byskov)
   for I in MIS do
     SubtractBlist(vertex_blist, I);
     # Iterate over all subsets of V(D) \ I as blists
-    # This is done by taking the cartesian product of n copies of [true, false] or
-    # [true] if the vertex is in I. The [true] is used as each element will be
-    # flipped to get reverse lexicographic ordering.
+    # This is done by taking the cartesian product of n copies of [true, false] 
+    # or [true] if the vertex is in I. The [true] is used as each element will
+    # be flipped to get reverse lexicographic ordering.
     subset_iter := EmptyPlist(n);
     for i in [1 .. n] do
       if I[i] then
@@ -499,7 +499,7 @@ function(D, Byskov)
     if 4 <= subset_colours[i] and subset_colours[i] < infinity then
       k := SizeBlist(S) / subset_colours[i];
       # Iterate over the maximal independent sets of D[V \ S]
-      for I in DIGRAPHS_MaximalIndependentSetsFromSubtractedSet(MIS, S, k) do
+      for I in DIGRAPHS_MaximalIndependentSetsSubtractedSet(MIS, S, k) do
         # Index S union I
         j := index_subsets(UnionBlist(S, I));
         subset_colours[j] := Minimum(subset_colours[j], subset_colours[i] + 1);
