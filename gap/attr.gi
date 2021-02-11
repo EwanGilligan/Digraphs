@@ -293,7 +293,7 @@ end);
 # Utility function to calculate the maximal independent sets (as BLists) of a subgraph induced by
 # removing a set of vertices.
 BindGlobal("DIGRAPHS_MaximalIndependentSetsFromSubtractedSet",
-function(I, subtracted_set)
+function(I, subtracted_set, size_bound)
   local induced_mis, temp, i;
   # First remove all vertices in the subtracted set from each MIS 
   temp := List(I, i -> DifferenceBlist(i, subtracted_set));
@@ -303,7 +303,7 @@ function(I, subtracted_set)
   Sort(temp, {x, y} -> SizeBlist(x) > SizeBlist(y));
   # Then check elements from back to front for if they are a subset
   for i in temp do
-    if ForAll(induced_mis, x -> not IsSubsetBlist(x, i)) then
+    if SizeBlist(i) <= size_bound and ForAll(induced_mis, x -> not IsSubsetBlist(x, i)) then
       Add(induced_mis, i);
     fi;
   od;
@@ -329,6 +329,8 @@ function(D, Lawler)
                # <D> has at least 2 vertices at this stage
   fi;
   vertices := List(DigraphVertices(D));
+  # Store all the Maximal Independent Sets, which can later be used for calculating
+  # the maximal independent sets of induced subgraphs.
   MIS := DigraphMaximalIndependentSets(D);
   # Convert each MIS to a Blist
   MIS := List(MIS, x -> BlistList(vertices, x)); 
@@ -353,7 +355,7 @@ function(D, Lawler)
     # Get the set complement, used for the MIS calculation
     FlipBlist(S); 
     # Iterate over the maximal independent sets of V[S] 
-    subset_MIS := DIGRAPHS_MaximalIndependentSetsFromSubtractedSet(MIS, S); 
+    subset_MIS := DIGRAPHS_MaximalIndependentSetsFromSubtractedSet(MIS, S, infinity); 
     # Undo the changes
     FlipBlist(S);
     for I in subset_MIS do
@@ -410,8 +412,8 @@ end
 InstallMethod(ChromaticNumber, "for a digraph and colouring algorithm",
 [IsDigraph, IsDigraphColouringAlgorithm and IsDigraphColouringAlgorithmByskov],
 function(D, Byskov)
-  local n, a, vertices, subset_colours, s, i, j, I, s_copy, subset_iter,
-  index_subsets, vertex_copy, k;
+  local n, a, vertices, subset_colours, S, i, j, I, s_copy, subset_iter,
+  index_subsets, vertex_blist, k, MIS, vertex_copy;
 
   n := DigraphNrVertices(D);
   if DigraphHasLoops(D) then
@@ -426,65 +428,73 @@ function(D, Byskov)
   fi;
   vertices := DigraphVertices(D);
   vertex_copy := ShallowCopy(vertices);
+  vertex_blist := BlistList(vertices, vertices);
+  # Store all the Maximal Independent Sets, which can later be used for calculating
+  # the maximal independent sets of induced subgraphs.
+  MIS := DigraphMaximalIndependentSets(D);
+  # Convert each MIS to a Blist
+  MIS := List(MIS, x -> BlistList(vertices, x)); 
   # Store current best colouring for each subset
   subset_colours := ListWithIdenticalEntries(2 ^ n, infinity);
   # Empty set is 0 colourable
   subset_colours[1] := 0;
   # Function to index the subsets of the vertices of D
-  index_subsets := set -> Sum(set, x -> 2 ^ (x - 1)) + 1;
+  index_subsets := function(subset)
+    local x, index;
+    index := 1;
+    for x in [1..n] do
+      if subset[x] then
+        index := index + 2 ^ (x - 1);
+      fi;
+    od;
+    return index;
+  end;
   # Iterate over vetex subsets
   subset_iter := IteratorOfCombinations(vertices);
   # Skip the first one, which should be the empty set
-  s := NextIterator(subset_iter);
-  Assert(1, IsEmpty(s), "First set from iterator should be the empty set");
+  S := NextIterator(subset_iter);
+  Assert(1, IsEmpty(S), "First set from iterator should be the empty set");
   # First find the 3 colourable subgraphs of D
-  for s in subset_iter do
-    i := index_subsets(s);
-    a := DIGRAPHS_UnderThreeColourable(InducedSubdigraph(D, s));
+  for S in subset_iter do
+    a := DIGRAPHS_UnderThreeColourable(InducedSubdigraph(D, S));
+    S := BlistList(vertices, S);
+    i := index_subsets(S);
     # Mark this as three or less colourable if it is.
     subset_colours[i] := Minimum(a, subset_colours[i]);
   od;
   # Process 4 colourable subgraphs
-  for I in DigraphMaximalIndependentSets(D) do
-    SubtractSet(vertex_copy, I);
+  for I in MIS do
+    SubtractBlist(vertex_blist, I);
     # Iterate over all subsets of V(D) \ I
-    for s in IteratorOfCombinations(vertex_copy) do
-      i := index_subsets(s);
+    for S in IteratorOfCombinations(ListBlist(vertices, vertex_blist)) do
+      S := BlistList(vertices, S);
+      i := index_subsets(S);
       if subset_colours[i] = 3 then
-        s_copy := ShallowCopy(s);
-        UniteSet(s_copy, I);
-        j := index_subsets(s_copy);
+        # Index union of S and I
+        j := index_subsets(UnionBlist(S, I));
         subset_colours[j] := Minimum(subset_colours[j], 4);
       fi;
     od;
     # Undo the changes made.
-    UniteSet(vertex_copy, I);
+    UniteBlist(vertex_blist, I);
   od;
   # Iterate over vetex subsets
   subset_iter := IteratorOfCombinations(vertices);
   # Skip the first one, which should be the empty set
-  s := NextIterator(subset_iter);
-  Assert(1, IsEmpty(s), "First set from iterator should be the empty set");
-  for s in subset_iter do
+  S := NextIterator(subset_iter);
+  Assert(1, IsEmpty(S), "First set from iterator should be the empty set");
+  for S in subset_iter do
+    S := BlistList(vertices, S);
     # Index the current subset that is being iterated over
-    i := index_subsets(s);
+    i := index_subsets(S);
     if 4 <= subset_colours[i] and subset_colours[i] < infinity then
-      # Bound the size of sets we need to consider
-      k := 1;
-      while k <= Length(s) / subset_colours[i] do
-        # Iterate over the maximal independent sets of D[V \ S]
-        for I in DigraphMaximalIndependentSets(D, [], s, infinity, k) do
-          # TODO Filter maximal independent set sizes during calculation
-          # The current method does do this by iterating the possible sizes
-          # But it would be better if we could find all independent sets up
-          # to a given size in a single call
-          s_copy := ShallowCopy(s);
-          UniteSet(s_copy, I);
-          j := index_subsets(s_copy);
-          subset_colours[j] := Minimum(subset_colours[j], subset_colours[i] + 1);
-        od;
-        k := k + 1;
-      od;
+      k := SizeBlist(S) / subset_colours[i];
+      # Iterate over the maximal independent sets of D[V \ S]
+      for I in DIGRAPHS_MaximalIndependentSetsFromSubtractedSet(MIS, S, k) do
+        # Index S union I
+        j := index_subsets(UnionBlist(S, I));
+        subset_colours[j] := Minimum(subset_colours[j], subset_colours[i] + 1);
+      od; 
     fi;
   od;
   return subset_colours[2 ^ n];
