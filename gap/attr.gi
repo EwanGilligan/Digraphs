@@ -338,13 +338,14 @@ function(D, Lawler)
   subset_colours := ListWithIdenticalEntries(2 ^ n, infinity);
   # Empty set can be colouring with only one colour.
   subset_colours[1] := 0;
-  subset_iter := IteratorOfCombinations(vertices);
+  # Iterator for blist subsets.
+  subset_iter := IteratorOfCartesianProduct2(ListWithIdenticalEntries(n, [false, true]));
   # Skip the first one, which should be the empty set.
   S := NextIterator(subset_iter);
-  Assert(1, IsEmpty(s), "Should be empty set first");
   # Iterate over all vertex subsets.
   for S in subset_iter do
-    S := BlistList(vertices, S);
+    # Cartesian iterator is ascending lexicographically, but we want reverse lexicographically.
+    FlipBlist(S);
     # Index the current subset that is being iterated over.
     s := 1;
     for x in [1..n] do
