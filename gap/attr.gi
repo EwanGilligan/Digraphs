@@ -290,12 +290,12 @@ function(D)
   return chrom;
 end);
 
-# Utility function to calculate the maximal independent sets (as BLists) of a subgraph induced by
-# removing a set of vertices.
+# Utility function to calculate the maximal independent sets (as BLists) of a
+# subgraph induced by removing a set of vertices.
 BindGlobal("DIGRAPHS_MaximalIndependentSetsFromSubtractedSet",
 function(I, subtracted_set, size_bound)
   local induced_mis, temp, i;
-  # First remove all vertices in the subtracted set from each MIS 
+  # First remove all vertices in the subtracted set from each MIS
   temp := List(I, i -> DifferenceBlist(i, subtracted_set));
   induced_mis := [];
   # Then remove any sets which are no longer maximal
@@ -303,7 +303,8 @@ function(I, subtracted_set, size_bound)
   Sort(temp, {x, y} -> SizeBlist(x) > SizeBlist(y));
   # Then check elements from back to front for if they are a subset
   for i in temp do
-    if SizeBlist(i) <= size_bound and ForAll(induced_mis, x -> not IsSubsetBlist(x, i)) then
+    if SizeBlist(i) <= size_bound and
+       ForAll(induced_mis, x -> not IsSubsetBlist(x, i)) then
       Add(induced_mis, i);
     fi;
   od;
@@ -329,8 +330,8 @@ function(D, Lawler)
                # <D> has at least 2 vertices at this stage
   fi;
   vertices := List(DigraphVertices(D));
-  # Store all the Maximal Independent Sets, which can later be used for calculating
-  # the maximal independent sets of induced subgraphs.
+  # Store all the Maximal Independent Sets, which can later be used for
+  # calculating the maximal independent sets of induced subgraphs.
   MIS := DigraphMaximalIndependentSets(D);
   # Convert each MIS to a Blist
   MIS := List(MIS, x -> BlistList(vertices, x)); 
@@ -339,24 +340,26 @@ function(D, Lawler)
   # Empty set can be colouring with only one colour.
   subset_colours[1] := 0;
   # Iterator for blist subsets.
-  subset_iter := IteratorOfCartesianProduct2(ListWithIdenticalEntries(n, [false, true]));
+  subset_iter := ListWithIdenticalEntries(n, [false, true]);
+  subset_iter := IteratorOfCartesianProduct2(subset_iter);
   # Skip the first one, which should be the empty set.
   S := NextIterator(subset_iter);
   # Iterate over all vertex subsets.
   for S in subset_iter do
-    # Cartesian iterator is ascending lexicographically, but we want reverse lexicographically.
+    # Cartesian iterator is ascending lexicographically, but we want reverse
+    # lexicographic ordering.
     FlipBlist(S);
     # Index the current subset that is being iterated over.
     s := 1;
-    for x in [1..n] do
+    for x in [1 .. n] do
       if S[x] then
         s := s + 2 ^ (x - 1);
       fi;
     od;
     # Get the set complement, used for the MIS calculation
-    FlipBlist(S); 
-    # Iterate over the maximal independent sets of V[S] 
-    subset_MIS := DIGRAPHS_MaximalIndependentSetsFromSubtractedSet(MIS, S, infinity); 
+    FlipBlist(S);
+    # Iterate over the maximal independent sets of V[S]
+    subset_MIS := DIGRAPHS_MaximalIndependentSetsFromSubtractedSet(MIS, S, infinity);
     # Undo the changes
     FlipBlist(S);
     for I in subset_MIS do
@@ -364,7 +367,7 @@ function(D, Lawler)
         SubtractBlist(S, I);
         # Index S \ I
         i := 1;
-        for x in [1..n] do
+        for x in [1 .. n] do
           if S[x] then
             i := i + 2 ^ (x - 1);
           fi;
@@ -382,7 +385,7 @@ end
 
 BindGlobal("DIGRAPHS_UnderThreeColourable",
 function(D)
-  local nr, I;
+  local nr;
   nr := DigraphNrVertices(D);
   if DigraphHasLoops(D) then
     ErrorNoReturn("the argument <D> must be a digraph with no loops,");
@@ -420,11 +423,11 @@ function(D, Byskov)
   fi;
   vertices := DigraphVertices(D);
   vertex_blist := BlistList(vertices, vertices);
-  # Store all the Maximal Independent Sets, which can later be used for calculating
-  # the maximal independent sets of induced subgraphs.
+  # Store all the Maximal Independent Sets, which can later be used for
+  # calculating the maximal independent sets of induced subgraphs.
   MIS := DigraphMaximalIndependentSets(D);
   # Convert each MIS to a Blist
-  MIS := List(MIS, x -> BlistList(vertices, x)); 
+  MIS := List(MIS, x -> BlistList(vertices, x));
   # Store current best colouring for each subset
   subset_colours := ListWithIdenticalEntries(2 ^ n, infinity);
   # Empty set is 0 colourable
@@ -433,7 +436,7 @@ function(D, Byskov)
   index_subsets := function(subset)
     local x, index;
     index := 1;
-    for x in [1..n] do
+    for x in [1 .. n] do
       if subset[x] then
         index := index + 2 ^ (x - 1);
       fi;
@@ -457,11 +460,11 @@ function(D, Byskov)
   for I in MIS do
     SubtractBlist(vertex_blist, I);
     # Iterate over all subsets of V(D) \ I as blists
-    # This is done by taking the cartesian product of n copies of [true, false] or 
+    # This is done by taking the cartesian product of n copies of [true, false] or
     # [true] if the vertex is in I. The [true] is used as each element will be
     # flipped to get reverse lexicographic ordering.
-    subset_iter := EmptyPlist(n); 
-    for i in [1..n] do
+    subset_iter := EmptyPlist(n);
+    for i in [1 .. n] do
       if I[i] then
         subset_iter[i] := [true];
       else
@@ -484,7 +487,8 @@ function(D, Byskov)
     UniteBlist(vertex_blist, I);
   od;
   # Iterate over vetex subset blists.
-  subset_iter := IteratorOfCartesianProduct2(ListWithIdenticalEntries(n, [true, false]));
+  subset_iter := ListWithIdenticalEntries(n, [true, false]);
+  subset_iter := IteratorOfCartesianProduct2(subset_iter);
   # Skip the first one, which should be the empty set
   S := NextIterator(subset_iter);
   for S in subset_iter do
@@ -499,7 +503,7 @@ function(D, Byskov)
         # Index S union I
         j := index_subsets(UnionBlist(S, I));
         subset_colours[j] := Minimum(subset_colours[j], subset_colours[i] + 1);
-      od; 
+      od;
     fi;
   od;
   return subset_colours[2 ^ n];
