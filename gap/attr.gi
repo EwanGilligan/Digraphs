@@ -412,8 +412,8 @@ end
 InstallMethod(ChromaticNumber, "for a digraph and colouring algorithm",
 [IsDigraph, IsDigraphColouringAlgorithm and IsDigraphColouringAlgorithmByskov],
 function(D, Byskov)
-  local n, a, vertices, subset_colours, S, i, j, I, s_copy, subset_iter,
-  index_subsets, vertex_blist, k, MIS, vertex_copy;
+  local n, a, vertices, subset_colours, S, i, j, I, subset_iter,
+  index_subsets, vertex_blist, k, MIS;
 
   n := DigraphNrVertices(D);
   if DigraphHasLoops(D) then
@@ -427,7 +427,6 @@ function(D, Byskov)
                # <D> has at least 2 vertices at this stage
   fi;
   vertices := DigraphVertices(D);
-  vertex_copy := ShallowCopy(vertices);
   vertex_blist := BlistList(vertices, vertices);
   # Store all the Maximal Independent Sets, which can later be used for calculating
   # the maximal independent sets of induced subgraphs.
