@@ -456,9 +456,23 @@ function(D, Byskov)
   # Process 4 colourable subgraphs
   for I in MIS do
     SubtractBlist(vertex_blist, I);
-    # Iterate over all subsets of V(D) \ I
-    for S in IteratorOfCombinations(ListBlist(vertices, vertex_blist)) do
-      S := BlistList(vertices, S);
+    # Iterate over all subsets of V(D) \ I as blists
+    # This is done by taking the cartesian product of n copies of [true, false] or 
+    # [true] if the vertex is in I. The [true] is used as each element will be
+    # flipped to get reverse lexicographic ordering.
+    subset_iter := EmptyPlist(n); 
+    for i in [1..n] do
+      if I[i] then
+        subset_iter[i] := [true];
+      else
+        subset_iter[i] := [true, false];
+      fi;
+    od;
+    subset_iter := IteratorOfCartesianProduct2(subset_iter);
+    # Skip the empty set.
+    NextIterator(subset_iter);
+    for S in subset_iter do
+      FlipBlist(S);
       i := index_subsets(S);
       if subset_colours[i] = 3 then
         # Index union of S and I
@@ -469,13 +483,13 @@ function(D, Byskov)
     # Undo the changes made.
     UniteBlist(vertex_blist, I);
   od;
-  # Iterate over vetex subsets
-  subset_iter := IteratorOfCombinations(vertices);
+  # Iterate over vetex subset blists.
+  subset_iter := IteratorOfCartesianProduct2(ListWithIdenticalEntries(n, [true, false]));
   # Skip the first one, which should be the empty set
   S := NextIterator(subset_iter);
-  Assert(1, IsEmpty(S), "First set from iterator should be the empty set");
   for S in subset_iter do
-    S := BlistList(vertices, S);
+    # Cartesian iteratator goes in lexicographic order, but we want reverse.
+    FlipBlist(S);
     # Index the current subset that is being iterated over
     i := index_subsets(S);
     if 4 <= subset_colours[i] and subset_colours[i] < infinity then
