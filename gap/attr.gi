@@ -460,7 +460,7 @@ function(D, Byskov)
   for I in MIS do
     SubtractBlist(vertex_blist, I);
     # Iterate over all subsets of V(D) \ I as blists
-    # This is done by taking the cartesian product of n copies of [true, false] 
+    # This is done by taking the cartesian product of n copies of [true, false]
     # or [true] if the vertex is in I. The [true] is used as each element will
     # be flipped to get reverse lexicographic ordering.
     subset_iter := EmptyPlist(n);
