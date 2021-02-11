@@ -392,19 +392,10 @@ function(D)
   elif IsBipartiteDigraph(D) then
     return 2;  # chromatic number = 2 iff <D> has >= 2 verts & is bipartite
                # <D> has at least 2 vertices at this stage
+  elif DigraphColouring(D, 3) <> fail then
+               # Check if there is a 3 colouring
+    return 3;
   fi;
-  # Now check if the graph is three colourable. This is done by searching
-  # for a maximal independent set where the subgraph induced by removing the
-  # vertices in the set is bipartite.
-  # Need to make a copy in case we are given a mutable digraph
-  D := DigraphImmutableCopyIfMutable(D);
-  for I in DigraphMaximalIndependentSets(D) do
-    # Check if removing these vertices gives you a bipartite digraph
-    if IsBipartiteDigraph(DigraphRemoveVertices(D, I)) then
-      return 3;
-    fi;
-  od;
-  # This graph is greater than 3 colourable.
   return infinity;
 end
 );
