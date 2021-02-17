@@ -27,6 +27,7 @@ ReadPackage("digraphs", "gap/digraph.gi");
 ReadPackage("digraphs", "gap/constructors.gi");
 ReadPackage("digraphs", "gap/grape.gi");
 ReadPackage("digraphs", "gap/labels.gi");
+ReadPackage("digraphs", "gap/algobj.gi");
 ReadPackage("digraphs", "gap/attr.gi");
 ReadPackage("digraphs", "gap/prop.gi");
 ReadPackage("digraphs", "gap/oper.gi");
