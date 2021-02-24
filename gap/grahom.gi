@@ -198,11 +198,11 @@ function(D, DSATUR)
                       x -> UniteBlistList(vertices, BlistList(vertices, inn[v]), outn[v]);
   # Function to compute the degree of saturation of a vertex.
   dsatur_func := function(vertex)
-    local k, degree, neighbor_colours;
+    local k, degree, neighbour_colours;
     degree := 0;
-    neighbor_colours = [];
+    neighbour_colours = [];
     for k in neighbours[vertex] do
-      if colouring[k] = 0 or not colouring[k] in neighbor_colours then
+      if colouring[k] = 0 or not colouring[k] in neighbour_colours then
         degree := degree + 1;
       fi;
     od;
