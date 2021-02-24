@@ -185,8 +185,63 @@ InstallMethod(DigraphGreedyColouring, "for a digraph and a function",
 {D, func} -> DigraphGreedyColouringNC(D, func(D)));
 
 InstallMethod(DigraphGreedyColouring, "for a digraph and DSATUR colouring algorithm",
-[IsDigraph, IsDigraphColouringAlgorithmDSATUR],
+[IsDigraph, IsDigraphColouringAlgorithm and IsDigraphColouringAlgorithmDSATUR],
 function(D, DSATUR)
+  local n, colouring, current_colours, ordering, i, j, v, nr_coloured, inn, outn,
+  vertices, neighbours, min_dsatur, dsatur;
+  n := DigraphNrVertices(D);
+  vertices := DigraphVertices(D);
+  inn := InNeighbours(D);
+  outn := OutNeighbours(D);
+  # Take union of in and out neighbours
+  neighbours := ListX(vertices,
+                      x -> UniteBlistList(vertices, BlistList(vertices, inn[v]), outn[v]);
+  # Function to compute the degree of saturation of a vertex.
+  dsatur_func := function(vertex)
+    local k, degree, neighbor_colours;
+    degree := 0;
+    neighbor_colours = [];
+    for k in neighbours[vertex] do
+      if colouring[k] = 0 or not colouring[k] in neighbor_colours then
+        degree := degree + 1;
+      fi;
+    od;
+    return degree;
+  end;
+  # Empty colouring initially
+  colouring := ListWithIdenticalEntries(n, 0);
+  # Store the current vertices assigned to each colour.
+  current_colours = ListWithIdenticalEntries(n, BlistList(verticies, []));
+  # Ordering verticies in decreasing order of sum of in and out degree.
+  ordering = DigraphWelshPowellOrder(vertices);
+  Append(current_colours[1], Remove(ordering, 1));
+  nr_coloured = 1;
+  while nr_coloured < n do
+    # Choose an uncoloured vertex with greatest degree of saturation, which
+    # is the number of different colours assigned to its neighbors in a 
+    # colouring. Breaks ties via maximum degrees or ascending order if not 
+    # possible.
+    v := ordering[1];
+    min_dsatur := dsatur_func(v);
+    for i in [2..Length(ordering)] do
+      dsatur := dsatur_func(i);
+      if dsatur < min_dsatur then
+        v := i;
+        min_dsatur := dsatur;
+      fi;
+    od;
+    j = 1;
+    while colouring[v] = 0 do
+       if neighbors[v] = current_colours[j] then
+         current_colours[j][v] = true;
+       else
+         j := j + 1;
+         # Update colouring to use the jth colour class
+         
+       fi;
+    od;
+  od;
+  return TransformationNC(colouring);
 end);
 
 InstallMethod(DigraphWelshPowellOrder, "for a digraph", [IsDigraph],

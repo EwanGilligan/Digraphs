@@ -33,4 +33,5 @@ BindGlobal("DigraphColouringAlgorithmDSATUR",
               NewType(
                 DigraphColouringAlgorithmFamilyObj,
                 IsDigraphColouringAlgorithmDSATUR),
+              rec()));
 Unbind(DigraphColouringAlgorithmFamilyObj);
