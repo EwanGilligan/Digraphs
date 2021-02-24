@@ -27,4 +27,10 @@ BindGlobal("DigraphColouringAlgorithmChristofides",
                 DigraphColouringAlgorithmFamilyObj,
                 IsDigraphColouringAlgorithmChristofides),
               rec()));
+
+BindGlobal("DigraphColouringAlgorithmDSATUR",
+            Objectify(
+              NewType(
+                DigraphColouringAlgorithmFamilyObj,
+                IsDigraphColouringAlgorithmDSATUR),
 Unbind(DigraphColouringAlgorithmFamilyObj);

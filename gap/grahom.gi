@@ -184,6 +184,11 @@ InstallMethod(DigraphGreedyColouring, "for a digraph and a function",
 [IsDigraph, IsFunction],
 {D, func} -> DigraphGreedyColouringNC(D, func(D)));
 
+InstallMethod(DigraphGreedyColouring, "for a digraph and DSATUR colouring algorithm",
+[IsDigraph, IsDigraphColouringAlgorithmDSATUR],
+function(D, DSATUR)
+end);
+
 InstallMethod(DigraphWelshPowellOrder, "for a digraph", [IsDigraph],
 function(D)
   local order, deg;

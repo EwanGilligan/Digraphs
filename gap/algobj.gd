@@ -5,3 +5,4 @@ DeclareFilter("IsDigraphColouringAlgorithmByskov");
 DeclareFilter("IsDigraphColouringAlgorithmLawler");
 DeclareFilter("IsDigraphColouringAlgorithmZykov");
 DeclareFilter("IsDigraphColouringAlgorithmChristofides");
+DeclareFilter("IsDigraphColouringAlgorithmDSATUR");

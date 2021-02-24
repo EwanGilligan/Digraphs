@@ -35,6 +35,7 @@ DeclareAttribute("DigraphGreedyColouring", IsDigraph);
 DeclareOperation("DigraphGreedyColouring", [IsDigraph, IsFunction]);
 DeclareOperation("DigraphGreedyColouring", [IsDigraph, IsHomogeneousList]);
 DeclareOperation("DigraphGreedyColouringNC", [IsDigraph, IsHomogeneousList]);
+DeclareOperation("DigraphGreedyColouring", [IsDigraph, IsDigraphColouringAlgorithm]);
 
 DeclareAttribute("DigraphWelshPowellOrder", IsDigraph);
 DeclareAttribute("DigraphSmallestLastOrder", IsDigraph);  # TODO: document
