@@ -188,7 +188,7 @@ InstallMethod(DigraphGreedyColouring, "for a digraph and DSATUR colouring algori
 [IsDigraph, IsDigraphColouringAlgorithm and IsDigraphColouringAlgorithmDSATUR],
 function(D, DSATUR)
   local n, colouring, current_colours, ordering, i, j, v, nr_coloured, inn, outn,
-  vertices, neighbours, min_dsatur, dsatur;
+  vertices, neighbours, min_dsatur, dsatur, temp, dsatur_func;
   n := DigraphNrVertices(D);
   vertices := DigraphVertices(D);
   inn := InNeighbours(D);
@@ -200,7 +200,7 @@ function(D, DSATUR)
   dsatur_func := function(vertex)
     local k, degree, neighbour_colours;
     degree := 0;
-    neighbour_colours = [];
+    neighbour_colours := [];
     for k in neighbours[vertex] do
       if colouring[k] = 0 or not colouring[k] in neighbour_colours then
         degree := degree + 1;
@@ -210,8 +210,8 @@ function(D, DSATUR)
   end;
   # Empty colouring initially
   colouring := ListWithIdenticalEntries(n, 0);
-  # Store the current vertices assigned to each colour.
-  current_colours = ListWithIdenticalEntries(n, BlistList(verticies, []));
+  # Store which vertices each colour is assigned.
+  current_colours := ListWithIdenticalEntries(n, BlistList(vertices, []));
   # Ordering verticies in decreasing order of sum of in and out degree.
   ordering = DigraphWelshPowellOrder(vertices);
   Append(current_colours[1], Remove(ordering, 1));
@@ -231,14 +231,17 @@ function(D, DSATUR)
       fi;
     od;
     j = 1;
-    while colouring[v] = 0 do
-       if neighbors[v] = current_colours[j] then
-         current_colours[j][v] = true;
-       else
-         j := j + 1;
-         # Update colouring to use the jth colour class
-         
-       fi;
+    while colouring[v] = 0 and do 
+      temp = IntersectionBlist(neighbour_colours[v], current_colours[j]); 
+      # If intersection is empty, then add to the jth colour class.
+      if SizeBlist(temp) = 0 then
+        # Add v to the jth colour class
+        current_colours[j][v] = true;
+        # set v to use colour j
+        colouring[v] = j;
+      else
+         j := j + 1; 
+      fi;
     od;
   od;
   return TransformationNC(colouring);
