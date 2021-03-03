@@ -188,14 +188,14 @@ InstallMethod(DigraphGreedyColouring, "for a digraph and DSATUR colouring algori
 [IsDigraph, IsDigraphColouringAlgorithm and IsDigraphColouringAlgorithmDSATUR],
 function(D, DSATUR)
   local n, colouring, current_colours, ordering, i, j, v, nr_coloured, inn, outn,
-  vertices, neighbours, min_dsatur, dsatur, temp, dsatur_func;
+  vertices, neighbours, min_dsatur, dsatur, temp, dsatur_func, v_index;
   n := DigraphNrVertices(D);
   vertices := DigraphVertices(D);
   inn := InNeighbours(D);
   outn := OutNeighbours(D);
   # Take union of in and out neighbours
-  neighbours := ListX(vertices,
-                      x -> UniteBlistList(vertices, BlistList(vertices, inn[v]), outn[v]);
+  neighbours := ListX(vertices, x -> UniteBlistList(vertices,
+                  BlistList(vertices, inn[x]), outn[x]));
   # Function to compute the degree of saturation of a vertex.
   dsatur_func := function(vertex)
     local k, degree, neighbour_colours;
@@ -213,32 +213,37 @@ function(D, DSATUR)
   # Store which vertices each colour is assigned.
   current_colours := ListWithIdenticalEntries(n, BlistList(vertices, []));
   # Ordering verticies in decreasing order of sum of in and out degree.
-  ordering = DigraphWelshPowellOrder(vertices);
+  ordering := DigraphWelshPowellOrder(vertices);
   Append(current_colours[1], Remove(ordering, 1));
-  nr_coloured = 1;
+  nr_coloured := 1;
   while nr_coloured < n do
     # Choose an uncoloured vertex with greatest degree of saturation, which
     # is the number of different colours assigned to its neighbors in a 
     # colouring. Breaks ties via maximum degrees or ascending order if not 
     # possible.
     v := ordering[1];
+    v_index := 1;
     min_dsatur := dsatur_func(v);
     for i in [2..Length(ordering)] do
-      dsatur := dsatur_func(i);
+      dsatur := dsatur_func(ordering[i]);
       if dsatur < min_dsatur then
-        v := i;
+        v := ordering[i];
+        v_index := i;
         min_dsatur := dsatur;
       fi;
     od;
-    j = 1;
-    while colouring[v] = 0 and do 
-      temp = IntersectionBlist(neighbour_colours[v], current_colours[j]); 
+    Remove(ordering, i);
+    j := 1;
+    # While v is uncoloured
+    while colouring[v] = 0 do 
+      temp := IntersectionBlist(neighbours[v], current_colours[j]); 
       # If intersection is empty, then add to the jth colour class.
       if SizeBlist(temp) = 0 then
         # Add v to the jth colour class
-        current_colours[j][v] = true;
+        current_colours[j][v] := true;
         # set v to use colour j
-        colouring[v] = j;
+        colouring[v] := j;
+        nr_coloured := nr_coloured + 1;
       else
          j := j + 1; 
       fi;
