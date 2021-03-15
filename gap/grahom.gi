@@ -217,17 +217,19 @@ function(D, DSATUR)
   for i in [1..n] do
     Add(current_colours, BlistList(vertices,[]));
   od;
-  # Ordering verticies in decreasing order of sum of in and out degree.
+  # Initial vertex order is in decreasing order of sum of in and out degree.
   ordering := ShallowCopy(DigraphWelshPowellOrder(D));
-  # Set this to use the first colour.
+  # Pick highest degree vertex, as no colours have been assigned yet
+  # and so all degrees have equal saturation degree.
   v := Remove(ordering, 1);
+  # Set this to use the first colour.
   colouring[v] := 1;
   current_colours[1][v] := true;
   nr_coloured := 1;
+  # Repeat until all vertices are coloured.
   while nr_coloured < n do
-    # Choose an uncoloured vertex with greatest degree of saturation, which
-    # is the number of different colours assigned to its neighbors in a 
-    # colouring. Breaks ties via maximum degrees or ascending order if not 
+    # Choose an uncoloured vertex with greatest degree of saturation. 
+    # Break ties via maximum degrees or ascending order if not 
     # possible.
     v := ordering[1];
     v_index := 1;
@@ -242,17 +244,17 @@ function(D, DSATUR)
     od;
     Remove(ordering, v_index);
     j := 1;
-    # While v is uncoloured
+    # Find the lowest possible colour and assign to v
     while colouring[v] = 0 do 
       temp := IntersectionBlist(neighbours[v], current_colours[j]); 
-      # If intersection is empty, then add to the jth colour class.
+      # If intersection is empty, then this colour can be assigned.
+      # Add vertex to the jth colour class.
       if SizeBlist(temp) = 0 then
         # Add v to the jth colour class
         current_colours[j][v] := true;
         # set v to use colour j
         colouring[v] := j;
         nr_coloured := nr_coloured + 1;
-        break;
       else
          j := j + 1; 
       fi;
