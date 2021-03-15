@@ -194,27 +194,35 @@ function(D, DSATUR)
   inn := InNeighbours(D);
   outn := OutNeighbours(D);
   # Take union of in and out neighbours
-  neighbours := ListX(vertices, x -> UniteBlistList(vertices,
-                  BlistList(vertices, inn[x]), outn[x]));
-  # Function to compute the degree of saturation of a vertex.
+  neighbours := ListX(vertices, x -> UnionBlist(BlistList(vertices, outn[x]),
+                  BlistList(vertices, inn[x])));
+  # Function to compute the degree of saturation of a vertex, which is the number of
+  # different colours assigned to its neighbours in a colouring.
   dsatur_func := function(vertex)
-    local k, degree, neighbour_colours;
-    degree := 0;
+    local k, neighbour_colours;
     neighbour_colours := [];
-    for k in neighbours[vertex] do
-      if colouring[k] = 0 or not colouring[k] in neighbour_colours then
-        degree := degree + 1;
+    for k in vertices do
+      # If the vertices are adjacent and k has been coloured, then add to the
+      # neighbour colours set (if it is not already present).
+      if neighbours[vertex][k] and colouring[k] <> 0 then
+        AddSet(neighbour_colours, colouring[k]);
       fi;
     od;
-    return degree;
+    return Length(neighbour_colours);
   end;
   # Empty colouring initially
   colouring := ListWithIdenticalEntries(n, 0);
   # Store which vertices each colour is assigned.
-  current_colours := ListWithIdenticalEntries(n, BlistList(vertices, []));
+  current_colours := [];
+  for i in [1..n] do
+    Add(current_colours, BlistList(vertices,[]));
+  od;
   # Ordering verticies in decreasing order of sum of in and out degree.
-  ordering := DigraphWelshPowellOrder(vertices);
-  Append(current_colours[1], Remove(ordering, 1));
+  ordering := ShallowCopy(DigraphWelshPowellOrder(D));
+  # Set this to use the first colour.
+  v := Remove(ordering, 1);
+  colouring[v] := 1;
+  current_colours[1][v] := true;
   nr_coloured := 1;
   while nr_coloured < n do
     # Choose an uncoloured vertex with greatest degree of saturation, which
@@ -232,7 +240,7 @@ function(D, DSATUR)
         min_dsatur := dsatur;
       fi;
     od;
-    Remove(ordering, i);
+    Remove(ordering, v_index);
     j := 1;
     # While v is uncoloured
     while colouring[v] = 0 do 
@@ -244,6 +252,7 @@ function(D, DSATUR)
         # set v to use colour j
         colouring[v] := j;
         nr_coloured := nr_coloured + 1;
+        break;
       else
          j := j + 1; 
       fi;
