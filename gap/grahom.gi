@@ -190,7 +190,7 @@ function(D)
     while colouring[v] = 0 do
       # If we need a new colour class
       if j > Length(current_colours) then
-        Add(current_colours, BlistList(vertices,[v]));
+        Add(current_colours, BlistList(vertices, [v]));
         # Can always colour with a new colour
         colouring[v] := j;
         nr_coloured := nr_coloured + 1;
