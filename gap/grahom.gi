@@ -139,8 +139,8 @@ function(D)
   # Take union of in and out neighbours
   neighbours := ListX(vertices, x -> UnionBlist(BlistList(vertices, outn[x]),
                   BlistList(vertices, inn[x])));
-  # Function to compute the degree of saturation of a vertex, which is the number of
-  # different colours assigned to its neighbours in a colouring.
+  # Function to compute the degree of saturation of a vertex, which is the number
+  # of different colours assigned to its neighbours in a colouring.
   dsatur_func := function(vertex)
     local k, neighbour_colours;
     neighbour_colours := [];
@@ -164,20 +164,19 @@ function(D)
   colouring[v] := 1;
   nr_coloured := 1;
   # Store which vertices each colour is assigned.
-  current_colours := [BlistList(vertices,[v])];
+  current_colours := [BlistList(vertices, [v])];
   # The first coloured vertices with different colours form a clique which
   # can be used as a lower bound for chromatic number.
   clique := [v];
   new_colours_only := true;
   # Repeat until all vertices are coloured.
   while nr_coloured < n do
-    # Choose an uncoloured vertex with greatest degree of saturation. 
-    # Break ties via maximum degrees or ascending order if not 
-    # possible.
+    # Choose an uncoloured vertex with greatest degree of saturation.
+    # Break ties via maximum degrees or ascending order if not possible.
     v := ordering[1];
     v_index := 1;
     min_dsatur := dsatur_func(v);
-    for i in [2..Length(ordering)] do
+    for i in [2 .. Length(ordering)] do
       dsatur := dsatur_func(ordering[i]);
       if dsatur < min_dsatur then
         v := ordering[i];
@@ -188,7 +187,7 @@ function(D)
     Remove(ordering, v_index);
     j := 1;
     # Find the lowest possible colour and assign to v
-    while colouring[v] = 0 do 
+    while colouring[v] = 0 do
       # If we need a new colour class
       if j > Length(current_colours) then
         Add(current_colours, BlistList(vertices,[v]));
@@ -202,7 +201,7 @@ function(D)
         break;
       fi;
       # Otherwise check if we can use the jth colour class.
-      temp := IntersectionBlist(neighbours[v], current_colours[j]); 
+      temp := IntersectionBlist(neighbours[v], current_colours[j]);
       # If intersection is empty, then this colour can be assigned.
       # Add vertex to the jth colour class.
       if SizeBlist(temp) = 0 then
@@ -214,7 +213,7 @@ function(D)
         # Has been coloured with existing colour class
         new_colours_only := false;
       else
-         j := j + 1; 
+         j := j + 1;
       fi;
     od;
   od;
@@ -240,7 +239,7 @@ function(D, DSATUR)
   lb := Length(best_colouring[2]);
   # Upper bound is colours used in greedy colouring.
   ub := RankOfTransformation(best_colouring[1]);
-  best_colouring := ListX([1..nr], x -> x ^ best_colouring[1]);
+  best_colouring := ListX([1 .. nr], x -> x ^ best_colouring[1]);
   # Function to compute the degree of saturation of a vertex.
   # This is the number of colours that neighbours are currently
   # coloured with.
@@ -252,7 +251,7 @@ function(D, DSATUR)
           AddSet(neighbour_colours, colouring[i]);
         fi;
       od;
-      return Length(neighbour_colours); 
+      return Length(neighbour_colours);
     end;
   # Main function for recursive calls
   main_func := function(C, nr_coloured, k)
@@ -269,7 +268,7 @@ function(D, DSATUR)
           # Select non-coloured vertex by maximum saturation degree,
           # breaking ties via ascending ordering.
           min_deg := infinity;
-          for i in [1..nr] do
+          for i in [1 .. nr] do
             if C[i] <> 0 then
               continue;
             fi;
@@ -280,7 +279,7 @@ function(D, DSATUR)
             fi;
           od;
           # Try every feasible colouring plus one new
-          for i in [1..k] do
+          for i in [1 .. k] do
             # Check if the this colour can be used.
             if ForAll(neighbours[v], x -> C[x] <> i) then
               C[v] := i;
@@ -296,7 +295,7 @@ function(D, DSATUR)
       fi;
     end;
   # Call recursive function with empty initial colouring
-  main_func(ListWithIdenticalEntries(nr, 0), 0, 0); 
+  main_func(ListWithIdenticalEntries(nr, 0), 0, 0);
   return TransformationNC(best_colouring);
 end);
 
@@ -357,8 +356,8 @@ InstallMethod(DigraphGreedyColouring, "for a digraph and a function",
 [IsDigraph, IsFunction],
 {D, func} -> DigraphGreedyColouringNC(D, func(D)));
 
-
-InstallMethod(DigraphGreedyColouring, "for a digraph and DSATUR colouring algorithm",
+InstallMethod(DigraphGreedyColouring,
+"for a digraph and DSATUR colouring algorithm",
 [IsDigraph, IsDigraphColouringAlgorithm and IsDigraphColouringAlgorithmDSATUR],
 function(D, DSATUR)
   return DIGRAPHS_dsatur_greedy_colouring(D)[1];
