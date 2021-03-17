@@ -356,44 +356,44 @@ gap> D := Digraph([[3], [], [2]]);;
 gap> DigraphGreedyColouring(D, [1 .. 3]);
 Transformation( [ 1, 1, 2 ] )
 
-#  DigraphGreedyColouringDSATUR
-gap> DigraphGreedyColouring(EmptyDigraph(0), DigraphGreedyColouringDSATUR);
+#  DigraphColouringAlgorithmDSATUR
+gap> DigraphGreedyColouring(EmptyDigraph(0), DigraphColouringAlgorithmDSATUR);
 IdentityTransformation
-gap> DigraphGreedyColouring(Digraph([[]]), DigraphGreedyColouringDSATUR);
+gap> DigraphGreedyColouring(Digraph([[]]), DigraphColouringAlgorithmDSATUR);
 IdentityTransformation
-gap> DigraphGreedyColouring(Digraph([[1]]), DigraphGreedyColouringDSATUR);
-fail
-gap> DigraphGreedyColouring(CycleDigraph(2), DigraphGreedyColouringDSATUR);
+gap> DigraphGreedyColouring(Digraph([[1]]), DigraphColouringAlgorithmDSATUR);
+Error, the argument <D> must be a digraph with no loops,
+gap> DigraphGreedyColouring(CycleDigraph(2), DigraphColouringAlgorithmDSATUR);
 IdentityTransformation
-gap> DigraphGreedyColouring(CycleDigraph(3), DigraphGreedyColouringDSATUR);
+gap> DigraphGreedyColouring(CycleDigraph(3), DigraphColouringAlgorithmDSATUR);
 IdentityTransformation
-gap> DigraphGreedyColouring(CycleDigraph(4), DigraphGreedyColouringDSATUR);
+gap> DigraphGreedyColouring(CycleDigraph(4), DigraphColouringAlgorithmDSATUR);
 Transformation( [ 1, 2, 1, 2 ] )
-gap> DigraphGreedyColouring(CycleDigraph(5), DigraphGreedyColouringDSATUR);
+gap> DigraphGreedyColouring(CycleDigraph(5), DigraphColouringAlgorithmDSATUR);
 Transformation( [ 1, 2, 1, 2, 3 ] )
-gap> DigraphGreedyColouring(CycleDigraph(6), DigraphGreedyColouringDSATUR);
+gap> DigraphGreedyColouring(CycleDigraph(6), DigraphColouringAlgorithmDSATUR);
 Transformation( [ 1, 2, 1, 2, 1, 2 ] )
-gap> DigraphGreedyColouring(CompleteDigraph(10), DigraphGreedyColouringDSATUR);
+gap> DigraphGreedyColouring(CompleteDigraph(10), DigraphColouringAlgorithmDSATUR);
 IdentityTransformation
 gap> gr := CompleteDigraph(4);;
-gap> DigraphGreedyColouring(gr, DigraphGreedyColouringDSATUR);
+gap> DigraphGreedyColouring(gr, DigraphColouringAlgorithmDSATUR);
 IdentityTransformation
 gap> gr := CycleDigraph(4);;
-gap> DigraphGreedyColouring(gr, DigraphGreedyColouringDSATUR);
+gap> DigraphGreedyColouring(gr, DigraphColouringAlgorithmDSATUR);
 Transformation( [ 1, 2, 1, 2 ] )
-gap> DigraphGreedyColouring(ChainDigraph(10), DigraphGreedyColouringDSATUR);;
-gap> DigraphGreedyColouring(CompleteDigraph(10), DigraphGreedyColouringDSATUR);;
+gap> DigraphGreedyColouring(ChainDigraph(10), DigraphColouringAlgorithmDSATUR);;
+gap> DigraphGreedyColouring(CompleteDigraph(10), DigraphColouringAlgorithmDSATUR);;
 gap> gr := DigraphFromSparse6String(
 > ":]nA?LcB@_EDfEB`GIaHGdJIgEKcLK`?MdCHiFLaBJhFMkJM");
 <immutable digraph with 30 vertices, 90 edges>
-gap> DigraphGreedyColouring(gr, DigraphGreedyColouringDSATUR);;
-gap> DigraphGreedyColouring(EmptyDigraph(0), DigraphGreedyColouringDSATUR);
+gap> DigraphGreedyColouring(gr, DigraphColouringAlgorithmDSATUR);;
+gap> DigraphGreedyColouring(EmptyDigraph(0), DigraphColouringAlgorithmDSATUR);
 IdentityTransformation
 gap> D := Digraph([[3, 4, 6, 8], [4, 6, 7, 8, 10], [2, 6, 7, 8, 9], [3, 5, 7],
 > [1, 2, 3, 6, 9], [2, 6, 8, 10], [7], [1, 10], [2, 7, 8], [1, 2, 6, 8, 10]]);;
 gap> DigraphHasLoops(D);
 true
-gap> DigraphGreedyColouring(D, DigraphGreedyColouringDSATUR);
+gap> DigraphGreedyColouring(D, DigraphColouringAlgorithmDSATUR);
 Error, the argument <D> must be a digraph with no loops,
 
 # DigraphWelshPowellOrder

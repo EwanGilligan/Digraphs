@@ -137,6 +137,9 @@ function(D)
     ErrorNoReturn("the argument <D> must be a digraph with no loops,");
   fi;
   n := DigraphNrVertices(D);
+  if n = 0 then
+    return [IdentityTransformation, []];
+  fi;
   vertices := DigraphVertices(D);
   inn := InNeighbours(D);
   outn := OutNeighbours(D);
