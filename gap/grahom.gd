@@ -30,7 +30,8 @@ DeclareOperation("EmbeddingsDigraphs", [IsDigraph, IsDigraph]);
 DeclareOperation("EmbeddingsDigraphsRepresentatives", [IsDigraph, IsDigraph]);
 
 DeclareOperation("DigraphColouring", [IsDigraph, IsInt]);
-DeclareOperation("DigraphColouring", [IsDigraph, IsDigraphColouringAlgorithm]);
+DeclareOperation("DigraphColouring",
+                 [IsDigraph, IsDigraphColouringAlgorithm]);
 
 DeclareAttribute("DigraphGreedyColouring", IsDigraph);
 DeclareOperation("DigraphGreedyColouring", [IsDigraph, IsFunction]);
