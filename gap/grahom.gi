@@ -167,7 +167,7 @@ function(D)
   current_colours := [BlistList(vertices,[v])];
   # The first coloured vertices with different colours form a clique which
   # can be used as a lower bound for chromatic number.
-  clique := [];
+  clique := [v];
   new_colours_only := true;
   # Repeat until all vertices are coloured.
   while nr_coloured < n do
@@ -224,8 +224,7 @@ end);
 InstallMethod(DigraphColouring, "for a digraph and DSATUR Algorithm",
 [IsDigraph, IsDigraphColouringAlgorithm and IsDigraphColouringAlgorithmDSATUR],
 function(D, DSATUR)
-  local nr, lb, ub, main_func, best_colouring, dsatur_func,
-  neighbours, to_colour, initial_colouring;
+  local nr, lb, ub, main_func, best_colouring, dsatur_func, neighbours;
 
   if DigraphHasLoops(D) then
       ErrorNoReturn("the argument <D> must be a digraph with no loops,");
@@ -236,12 +235,12 @@ function(D, DSATUR)
   neighbours := OutNeighbours(D);
   nr := DigraphNrVertices(D);
   # Initial greedy colouring for upper and lower bounds.
-  initial_colouring := DIGRAPHS_dsatur_greedy_colouring(D);
-  best_colouring := initial_colouring[1];
+  best_colouring := DIGRAPHS_dsatur_greedy_colouring(D);
   # Lower bound is clique number from initial colouring.
-  lb := Length(initial_colouring[2]);
+  lb := Length(best_colouring[2]);
   # Upper bound is colours used in greedy colouring.
-  ub := RankOfTransformation(initial_colouring[1]);
+  ub := RankOfTransformation(best_colouring[1]);
+  best_colouring := ListX([1..nr], x -> x ^ best_colouring[1]);
   # Function to compute the degree of saturation of a vertex.
   # This is the number of colours that neighbours are currently
   # coloured with.
@@ -257,7 +256,7 @@ function(D, DSATUR)
     end;
   # Main function for recursive calls
   main_func := function(C, nr_coloured, k)
-      local v, min_deg, i, deg, u;
+      local v, min_deg, i, deg;
       if nr_coloured = nr then
         if k < ub then
           # Now we have a new best colouring.
@@ -298,7 +297,7 @@ function(D, DSATUR)
     end;
   # Call recursive function with empty initial colouring
   main_func(ListWithIdenticalEntries(nr, 0), 0, 0); 
-  return best_colouring;
+  return TransformationNC(best_colouring);
 end);
 
 InstallMethod(DigraphGreedyColouring, "for a digraph", [IsDigraph],
