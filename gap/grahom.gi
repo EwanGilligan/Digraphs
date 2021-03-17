@@ -224,7 +224,7 @@ end);
 InstallMethod(DigraphColouring, "for a digraph and DSATUR Algorithm",
 [IsDigraph, IsDigraphColouringAlgorithm and IsDigraphColouringAlgorithmDSATUR],
 function(D, DSATUR)
-  local nr, colouring, lb, ub, main_func, best_colouring, dsatur_func,
+  local nr, lb, ub, main_func, best_colouring, dsatur_func,
   neighbours, to_colour, initial_colouring;
 
   if DigraphHasLoops(D) then
@@ -235,11 +235,9 @@ function(D, DSATUR)
   D := DigraphSymmetricClosure(D);
   neighbours := OutNeighbours(D);
   nr := DigraphNrVertices(D);
-  colouring := ListWithIdenticalEntries(nr, 0);
-  # Vertices still to colour
-  to_colour := List([1..nr]);
   # Initial greedy colouring for upper and lower bounds.
   initial_colouring := DIGRAPHS_dsatur_greedy_colouring(D);
+  best_colouring := initial_colouring[1];
   # Lower bound is clique number from initial colouring.
   lb := Length(initial_colouring[2]);
   # Upper bound is colours used in greedy colouring.
@@ -247,7 +245,7 @@ function(D, DSATUR)
   # Function to compute the degree of saturation of a vertex.
   # This is the number of colours that neighbours are currently
   # coloured with.
-  dsatur_func := function(vertex)
+  dsatur_func := function(vertex, colouring)
       local neighbour_colours, i;
       neighbour_colours := [0];
       for i in neighbours[vertex] do
@@ -272,14 +270,16 @@ function(D, DSATUR)
           # Select non-coloured vertex by maximum saturation degree,
           # breaking ties via ascending ordering.
           min_deg := infinity;
-          for i in to_colour do
-            deg := dsatur_func(i);
+          for i in [1..nr] do
+            if C[i] <> 0 then
+              continue;
+            fi;
+            deg := dsatur_func(i, C);
             if deg < min_deg then
               min_deg := deg;
               v := i;
             fi;
           od;
-          RemoveSet(to_colour, v);
           # Try every feasible colouring plus one new
           for i in [1..k] do
             # Check if the this colour can be used.
@@ -291,11 +291,13 @@ function(D, DSATUR)
           # New colour to try
           C[v] := k + 1;
           main_func(C, nr_coloured + 1, k + 1);
+          # Reset colour to uncoloured.
+          C[v] := 0;
         fi;
       fi;
     end;
-  # Call recursive function
-  main_func(colouring, 0, 0); 
+  # Call recursive function with empty initial colouring
+  main_func(ListWithIdenticalEntries(nr, 0), 0, 0); 
   return best_colouring;
 end);
 
