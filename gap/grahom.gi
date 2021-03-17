@@ -132,6 +132,10 @@ function(D)
   local n, colouring, current_colours, ordering, i, j, v, nr_coloured, inn, outn,
   vertices, neighbours, min_dsatur, dsatur, temp, dsatur_func, v_index, clique,
   new_colours_only;
+
+  if DigraphHasLoops(D) then 
+    ErrorNoReturn("the argument <D> must be a digraph with no loops,");
+  fi;
   n := DigraphNrVertices(D);
   vertices := DigraphVertices(D);
   inn := InNeighbours(D);
