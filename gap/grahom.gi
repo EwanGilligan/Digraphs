@@ -184,11 +184,11 @@ InstallMethod(DigraphGreedyColouring, "for a digraph and a function",
 [IsDigraph, IsFunction],
 {D, func} -> DigraphGreedyColouringNC(D, func(D)));
 
-InstallMethod(DigraphGreedyColouring, "for a digraph and DSATUR colouring algorithm",
-[IsDigraph, IsDigraphColouringAlgorithm and IsDigraphColouringAlgorithmDSATUR],
-function(D, DSATUR)
+BindGlobal("DIGRAPHS_dsatur_greedy_colouring",
+function(D)
   local n, colouring, current_colours, ordering, i, j, v, nr_coloured, inn, outn,
-  vertices, neighbours, min_dsatur, dsatur, temp, dsatur_func, v_index;
+  vertices, neighbours, min_dsatur, dsatur, temp, dsatur_func, v_index, clique,
+  new_colours_only;
   n := DigraphNrVertices(D);
   vertices := DigraphVertices(D);
   inn := InNeighbours(D);
@@ -212,11 +212,6 @@ function(D, DSATUR)
   end;
   # Empty colouring initially
   colouring := ListWithIdenticalEntries(n, 0);
-  # Store which vertices each colour is assigned.
-  current_colours := [];
-  for i in [1..n] do
-    Add(current_colours, BlistList(vertices,[]));
-  od;
   # Initial vertex order is in decreasing order of sum of in and out degree.
   ordering := ShallowCopy(DigraphWelshPowellOrder(D));
   # Pick highest degree vertex, as no colours have been assigned yet
@@ -224,8 +219,13 @@ function(D, DSATUR)
   v := Remove(ordering, 1);
   # Set this to use the first colour.
   colouring[v] := 1;
-  current_colours[1][v] := true;
   nr_coloured := 1;
+  # Store which vertices each colour is assigned.
+  current_colours := [BlistList(vertices,[v])];
+  # The first coloured vertices with different colours form a clique which
+  # can be used as a lower bound for chromatic number.
+  clique := [];
+  new_colours_only := true;
   # Repeat until all vertices are coloured.
   while nr_coloured < n do
     # Choose an uncoloured vertex with greatest degree of saturation. 
@@ -246,6 +246,19 @@ function(D, DSATUR)
     j := 1;
     # Find the lowest possible colour and assign to v
     while colouring[v] = 0 do 
+      # If we need a new colour class
+      if j > Length(current_colours) then
+        Add(current_colours, BlistList(vertices,[v]));
+        # Can always colour with a new colour
+        colouring[v] := j;
+        nr_coloured := nr_coloured + 1;
+        # If we have only used new colour classes then add the clique.
+        if new_colours_only then
+          Add(clique, v);
+        fi;
+        break;
+      fi;
+      # Otherwise check if we can use the jth colour class.
       temp := IntersectionBlist(neighbours[v], current_colours[j]); 
       # If intersection is empty, then this colour can be assigned.
       # Add vertex to the jth colour class.
@@ -255,12 +268,20 @@ function(D, DSATUR)
         # set v to use colour j
         colouring[v] := j;
         nr_coloured := nr_coloured + 1;
+        # Has been coloured with existing colour class
+        new_colours_only := false;
       else
          j := j + 1; 
       fi;
     od;
   od;
-  return TransformationNC(colouring);
+  return [TransformationNC(colouring), clique];
+end);
+
+InstallMethod(DigraphGreedyColouring, "for a digraph and DSATUR colouring algorithm",
+[IsDigraph, IsDigraphColouringAlgorithm and IsDigraphColouringAlgorithmDSATUR],
+function(D, DSATUR)
+  return DIGRAPHS_dsatur_greedy_colouring(D)[1];
 end);
 
 InstallMethod(DigraphWelshPowellOrder, "for a digraph", [IsDigraph],
