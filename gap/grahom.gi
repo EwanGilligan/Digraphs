@@ -146,10 +146,20 @@ function(D, DSATUR)
                lb := lb,
                ub := ub);
   end;
-  # Break ties via ascending ordering, so tie breaker is always false as
-  # vertices are visited in ascending order.
-  tie_breaker := function(D, cur, new, colouring)
-    return false;
+  # Break ties via maximum degree, further ties broken by ascending order.
+  tie_breaker := function(D, vertices, colouring, k)
+    local v,u, cur_deg, min_deg;
+    min_deg := infinity;
+    for u in vertices do 
+      cur_deg := OutDegreeOfVertex(D, u); 
+      if cur_deg < min_deg then
+        v := u;
+        min_deg := cur_deg;
+      fi;
+    od;
+    # Further ties broken in ascending order, and vertices are visited in
+    # ascending order and so cur is visited before new.
+    return v;
   end;
   return DIGRAPHS_ExactDSATUR(D, initialise_function, tie_breaker);
 end);
@@ -173,15 +183,37 @@ function(D, DSATUR)
                lb := lb,
                ub := ub);
   end;
-  # Break ties via ascending ordering, so tie breaker is always false as
-  # vertices are visited in ascending order.
-  tie_breaker := function(D, cur, new, colouring)
+  # Break ties by the number of common colours available in the neighbours
+  # of uncoloured vertices.
+  tie_breaker := function(D, cur, new, colouring, k)
+    local count, vertices, v, u, colour;
+    count := [0, 0];
+    vertices := [cur, new];
+    for v in [1, 2] do 
+      for colour in [1..k] do
+        # Check each neighbour of cur.
+        for u in OutNeighboursOfVertex(vertices[v]) do
+          # Only consider uncoloured vertices
+          if colouring[u] <> 0 then
+            break;
+          fi;
+          # Increase count if this neighbour can be coloured with colour
+          if ForAll(OutNeighboursOfVertex(u), x -> colouring[x] <> colour) then
+            count[v] := count[v] + 1;
+          fi;
+        od;
+      od;
+    od;
+    # Pick vertex with greatest sum.
+    if count[0] < count[1] then
+      return true;
+    fi;
     return false;
   end;
   return DIGRAPHS_ExactDSATUR(D, initialise_function, tie_breaker);
 end);
 
-InstallMethod(DigraphColouring, "for a digraph and Brelaz Colouring Algorithm",
+InstallMethod(DigraphColouring, "for a digraph and Segundo Colouring Algorithm",
 [IsDigraph, IsDigraphColouringAlgorithm and IsDigraphColouringAlgorithmSegundo],
 function(D, DSATUR)
   local initialise_function, tie_breaker;
@@ -202,7 +234,7 @@ function(D, DSATUR)
   end;
   # Break ties via ascending ordering, so tie breaker is always false as
   # vertices are visited in ascending order.
-  tie_breaker := function(D, cur, new, colouring)
+  tie_breaker := function(D, cur, new, colouring, k)
     return false;
   end;
   return DIGRAPHS_ExactDSATUR(D, initialise_function, tie_breaker);
@@ -212,7 +244,8 @@ end);
 InstallGlobalFunction(DIGRAPHS_ExactDSATUR,
 [IsDigraph, IsFunction, IsFunction],
 function(D, initialise_function, tie_breaker)
-  local nr, lb, ub, main_func, best_colouring, dsatur_func, neighbours, init;
+  local nr, lb, ub, main_func, best_colouring, dsatur_func, neighbours, init,
+  degrees;
 
   if DigraphHasLoops(D) then
       ErrorNoReturn("the argument <D> must be a digraph with no loops,");
@@ -225,6 +258,8 @@ function(D, initialise_function, tie_breaker)
   # Use initialation function for intial colouring, upper bound, and lower bound
   init := initialise_function(D);
   best_colouring := init.init_colouring;
+  # Store the degrees in each vertex picking step
+  degrees := ListWithIdenticalEntries(nr, 0);
   ub := init.ub;
   lb := init.lb;
   # Function to compute the degree of saturation of a vertex.
@@ -242,7 +277,7 @@ function(D, initialise_function, tie_breaker)
     end;
   # Main function for recursive calls
   main_func := function(C, nr_coloured, k)
-      local v, min_deg, i, deg;
+      local v, m_deg, i, candidates;
       if nr_coloured = nr then
         if k < ub then
           # Now we have a new best colouring.
@@ -254,18 +289,21 @@ function(D, initialise_function, tie_breaker)
         if Maximum(k, lb) < ub then
           # Select non-coloured vertex by maximum saturation degree,
           # breaking ties with the tie breaker function.
-          min_deg := infinity;
           for i in [1 .. nr] do
             if C[i] <> 0 then
-              continue;
-            fi;
-            deg := dsatur_func(i, C);
-            # Use tie breaker if equal
-            if deg < min_deg or (deg = min_deg and tie_breaker(D, v, i, C)) then
-              min_deg := deg;
-              v := i;
+              degrees[i] := infinity;
+            else
+              degrees[i] := dsatur_func(i, C);
             fi;
           od;
+          m_deg := Minimum(degrees);
+          candidates := Filtered([1 .. nr], x -> degrees[x] = m_deg);
+          # Use tie_breaker if there is more than one candidate
+          if Length(candidates) > 1 then
+            v := tie_breaker(D, candidates, C, k);
+          else
+            v := candidates[1];
+          fi;
           # Try every feasible colouring plus one new
           for i in [1 .. k] do
             # Check if the this colour can be used.
