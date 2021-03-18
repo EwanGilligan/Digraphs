@@ -127,13 +127,238 @@ function(D, n)
   return DigraphEpimorphism(D, CompleteDigraph(n));
 end);
 
-BindGlobal("DIGRAPHS_dsatur_greedy_colouring",
+InstallMethod(DigraphColouring, "for a digraph and Brelaz Colouring Algorithm",
+[IsDigraph, IsDigraphColouringAlgorithm and IsDigraphColouringAlgorithmBrelaz],
+function(D, DSATUR)
+  local initialise_function, tie_breaker;
+  # Upper bound based on the colours used for a greedy colouring
+  # Lower bound is the size of a clique found during the greedy colouring.
+  initialise_function := function(D)
+    local init_colouring, lb, ub;
+    # Initial greedy colouring for upper and lower bounds.
+    init_colouring := DIGRAPHS_GreedyDSATUR(D);
+    # Lower bound is clique number from initial colouring.
+    lb := Length(init_colouring[2]);
+    # Upper bound is colours used in greedy colouring.
+    ub := RankOfTransformation(init_colouring[1]);
+    init_colouring := ListX(DigraphVertices(D), x -> x ^ init_colouring[1]);
+    return rec(init_colouring := init_colouring,
+               lb := lb,
+               ub := ub);
+  end;
+  # Break ties via ascending ordering, so tie breaker is always false as
+  # vertices are visited in ascending order.
+  tie_breaker := function(D, cur, new, colouring)
+    return false;
+  end;
+  return DIGRAPHS_ExactDSATUR(D, initialise_function, tie_breaker);
+end);
+
+InstallMethod(DigraphColouring, "for a digraph and Sewell Colouring Algorithm",
+[IsDigraph, IsDigraphColouringAlgorithm and IsDigraphColouringAlgorithmSewell],
+function(D, DSATUR)
+  local initialise_function, tie_breaker;
+  # Upper bound based on the colours used for a greedy colouring
+  # Lower bound is the size of a clique found during the greedy colouring.
+  initialise_function := function(D)
+    local init_colouring, lb, ub;
+    # Initial greedy colouring for upper and lower bounds.
+    init_colouring := DIGRAPHS_GreedyDSATUR(D);
+    # Lower bound is clique number from initial colouring.
+    lb := Length(init_colouring[2]);
+    # Upper bound is colours used in greedy colouring.
+    ub := RankOfTransformation(init_colouring[1]);
+    init_colouring := ListX(DigraphVertices(D), x -> x ^ init_colouring[1]);
+    return rec(init_colouring := init_colouring,
+               lb := lb,
+               ub := ub);
+  end;
+  # Break ties via ascending ordering, so tie breaker is always false as
+  # vertices are visited in ascending order.
+  tie_breaker := function(D, cur, new, colouring)
+    return false;
+  end;
+  return DIGRAPHS_ExactDSATUR(D, initialise_function, tie_breaker);
+end);
+
+InstallMethod(DigraphColouring, "for a digraph and Brelaz Colouring Algorithm",
+[IsDigraph, IsDigraphColouringAlgorithm and IsDigraphColouringAlgorithmSegundo],
+function(D, DSATUR)
+  local initialise_function, tie_breaker;
+  # Upper bound based on the colours used for a greedy colouring
+  # Lower bound is the size of a clique found during the greedy colouring.
+  initialise_function := function(D)
+    local init_colouring, lb, ub;
+    # Initial greedy colouring for upper and lower bounds.
+    init_colouring := DIGRAPHS_GreedyDSATUR(D);
+    # Lower bound is clique number from initial colouring.
+    lb := Length(init_colouring[2]);
+    # Upper bound is colours used in greedy colouring.
+    ub := RankOfTransformation(init_colouring[1]);
+    init_colouring := ListX(DigraphVertices(D), x -> x ^ init_colouring[1]);
+    return rec(init_colouring := init_colouring,
+               lb := lb,
+               ub := ub);
+  end;
+  # Break ties via ascending ordering, so tie breaker is always false as
+  # vertices are visited in ascending order.
+  tie_breaker := function(D, cur, new, colouring)
+    return false;
+  end;
+  return DIGRAPHS_ExactDSATUR(D, initialise_function, tie_breaker);
+end);
+
+# Function skeleton for variations of exact DSATUR
+InstallGlobalFunction(DIGRAPHS_ExactDSATUR,
+[IsDigraph, IsFunction, IsFunction],
+function(D, initialise_function, tie_breaker)
+  local nr, lb, ub, main_func, best_colouring, dsatur_func, neighbours, init;
+
+  if DigraphHasLoops(D) then
+      ErrorNoReturn("the argument <D> must be a digraph with no loops,");
+  fi;
+  # Take symmetric closure, so we only have to check one of out-neighbours
+  # or in-neighbours.
+  D := DigraphSymmetricClosure(D);
+  neighbours := OutNeighbours(D);
+  nr := DigraphNrVertices(D);
+  # Use initialation function for intial colouring, upper bound, and lower bound
+  init := initialise_function(D);
+  best_colouring := init.init_colouring;
+  ub := init.ub;
+  lb := init.lb;
+  # Function to compute the degree of saturation of a vertex.
+  # This is the number of colours that neighbours are currently
+  # coloured with.
+  dsatur_func := function(vertex, colouring)
+      local neighbour_colours, i;
+      neighbour_colours := [0];
+      for i in neighbours[vertex] do
+        if colouring[i] <> 0 then
+          AddSet(neighbour_colours, colouring[i]);
+        fi;
+      od;
+      return Length(neighbour_colours);
+    end;
+  # Main function for recursive calls
+  main_func := function(C, nr_coloured, k)
+      local v, min_deg, i, deg;
+      if nr_coloured = nr then
+        if k < ub then
+          # Now we have a new best colouring.
+          best_colouring := ShallowCopy(C);
+          # Update upper bound with best known colouring
+          ub := k;
+        fi;
+      else
+        if Maximum(k, lb) < ub then
+          # Select non-coloured vertex by maximum saturation degree,
+          # breaking ties with the tie breaker function.
+          min_deg := infinity;
+          for i in [1 .. nr] do
+            if C[i] <> 0 then
+              continue;
+            fi;
+            deg := dsatur_func(i, C);
+            # Use tie breaker if equal
+            if deg < min_deg or (deg = min_deg and tie_breaker(D, v, i, C)) then
+              min_deg := deg;
+              v := i;
+            fi;
+          od;
+          # Try every feasible colouring plus one new
+          for i in [1 .. k] do
+            # Check if the this colour can be used.
+            if ForAll(neighbours[v], x -> C[x] <> i) then
+              C[v] := i;
+              main_func(C, nr_coloured + 1, k);
+            fi;
+          od;
+          # New colour to try
+          C[v] := k + 1;
+          main_func(C, nr_coloured + 1, k + 1);
+          # Reset colour to uncoloured.
+          C[v] := 0;
+        fi;
+      fi;
+    end;
+  # Call recursive function with empty initial colouring
+  main_func(ListWithIdenticalEntries(nr, 0), 0, 0);
+  return TransformationNC(best_colouring);
+end);
+
+InstallMethod(DigraphGreedyColouring, "for a digraph", [IsDigraph],
+D -> DigraphGreedyColouringNC(D, DigraphWelshPowellOrder(D)));
+
+InstallMethod(DigraphGreedyColouring, "for a digraph",
+[IsDigraph, IsHomogeneousList],
+function(D, order)
+  local n;
+  n := DigraphNrVertices(D);
+  if Length(order) <> n or ForAny(order, x -> (not IsPosInt(x)) or x > n) then
+    ErrorNoReturn("the 2nd argument <order> must be a permutation of ",
+                  "[1 .. ", n, "]");
+  fi;
+  return DigraphGreedyColouringNC(D, order);
+end);
+
+InstallMethod(DigraphGreedyColouringNC,
+"for a digraph by out-neighbours and a homogeneous list",
+[IsDigraphByOutNeighboursRep, IsHomogeneousList],
+function(D, order)
+  local n, colour, colouring, out, inn, empty, all, available, nr_coloured, v;
+  n := DigraphNrVertices(D);
+  if n = 0 then
+    return IdentityTransformation;
+  elif DigraphHasLoops(D) then
+    return fail;
+  fi;
+  colour := 1;
+  colouring := ListWithIdenticalEntries(n, 0);
+  out := OutNeighbours(D);
+  inn := InNeighbours(D);
+  empty := BlistList([1 .. n], []);
+  all := BlistList([1 .. n], [1 .. n]);
+  available := BlistList([1 .. n], [1 .. n]);
+  nr_coloured := 0;
+  while nr_coloured < n do
+    for v in order do
+      if colouring[v] = 0 and available[v] then
+        nr_coloured := nr_coloured + 1;
+        colouring[v] := colour;
+        available[v] := false;
+        SubtractBlist(available, BlistList([1 .. n], out[v]));
+        SubtractBlist(available, BlistList([1 .. n], inn[v]));
+        if available = empty then
+          break;
+        fi;
+      fi;
+    od;
+    UniteBlist(available, all);
+    colour := colour + 1;
+  od;
+  return TransformationNC(colouring);
+end);
+
+InstallMethod(DigraphGreedyColouring, "for a digraph and a function",
+[IsDigraph, IsFunction],
+{D, func} -> DigraphGreedyColouringNC(D, func(D)));
+
+InstallMethod(DigraphGreedyColouring,
+"for a digraph and DSATUR colouring algorithm",
+[IsDigraph, IsDigraphColouringAlgorithm and IsDigraphColouringAlgorithmDSATUR],
+function(D, DSATUR)
+  return DIGRAPHS_GreedyDSATUR(D)[1];
+end);
+
+InstallGlobalFunction(DIGRAPHS_GreedyDSATUR,
+[IsDigraph],
 function(D)
   local n, colouring, current_colours, ordering, i, j, v, nr_coloured, inn, outn,
   vertices, neighbours, min_dsatur, dsatur, temp, dsatur_func, v_index, clique,
   new_colours_only;
 
-  if DigraphHasLoops(D) then 
+  if DigraphHasLoops(D) then
     ErrorNoReturn("the argument <D> must be a digraph with no loops,");
   fi;
   n := DigraphNrVertices(D);
@@ -227,148 +452,6 @@ function(D)
   return [TransformationNC(colouring), clique];
 end);
 
-InstallMethod(DigraphColouring, "for a digraph and DSATUR Algorithm",
-[IsDigraph, IsDigraphColouringAlgorithm and IsDigraphColouringAlgorithmDSATUR],
-function(D, DSATUR)
-  local nr, lb, ub, main_func, best_colouring, dsatur_func, neighbours;
-
-  if DigraphHasLoops(D) then
-      ErrorNoReturn("the argument <D> must be a digraph with no loops,");
-  fi;
-  # Take symmetric closure, so we only have to check one of out-neighbours
-  # or in-neighbours.
-  D := DigraphSymmetricClosure(D);
-  neighbours := OutNeighbours(D);
-  nr := DigraphNrVertices(D);
-  # Initial greedy colouring for upper and lower bounds.
-  best_colouring := DIGRAPHS_dsatur_greedy_colouring(D);
-  # Lower bound is clique number from initial colouring.
-  lb := Length(best_colouring[2]);
-  # Upper bound is colours used in greedy colouring.
-  ub := RankOfTransformation(best_colouring[1]);
-  best_colouring := ListX([1 .. nr], x -> x ^ best_colouring[1]);
-  # Function to compute the degree of saturation of a vertex.
-  # This is the number of colours that neighbours are currently
-  # coloured with.
-  dsatur_func := function(vertex, colouring)
-      local neighbour_colours, i;
-      neighbour_colours := [0];
-      for i in neighbours[vertex] do
-        if colouring[i] <> 0 then
-          AddSet(neighbour_colours, colouring[i]);
-        fi;
-      od;
-      return Length(neighbour_colours);
-    end;
-  # Main function for recursive calls
-  main_func := function(C, nr_coloured, k)
-      local v, min_deg, i, deg;
-      if nr_coloured = nr then
-        if k < ub then
-          # Now we have a new best colouring.
-          best_colouring := ShallowCopy(C);
-          # Update upper bound with best known colouring
-          ub := k;
-        fi;
-      else
-        if Maximum(k, lb) < ub then
-          # Select non-coloured vertex by maximum saturation degree,
-          # breaking ties via ascending ordering.
-          min_deg := infinity;
-          for i in [1 .. nr] do
-            if C[i] <> 0 then
-              continue;
-            fi;
-            deg := dsatur_func(i, C);
-            if deg < min_deg then
-              min_deg := deg;
-              v := i;
-            fi;
-          od;
-          # Try every feasible colouring plus one new
-          for i in [1 .. k] do
-            # Check if the this colour can be used.
-            if ForAll(neighbours[v], x -> C[x] <> i) then
-              C[v] := i;
-              main_func(C, nr_coloured + 1, k);
-            fi;
-          od;
-          # New colour to try
-          C[v] := k + 1;
-          main_func(C, nr_coloured + 1, k + 1);
-          # Reset colour to uncoloured.
-          C[v] := 0;
-        fi;
-      fi;
-    end;
-  # Call recursive function with empty initial colouring
-  main_func(ListWithIdenticalEntries(nr, 0), 0, 0);
-  return TransformationNC(best_colouring);
-end);
-
-InstallMethod(DigraphGreedyColouring, "for a digraph", [IsDigraph],
-D -> DigraphGreedyColouringNC(D, DigraphWelshPowellOrder(D)));
-
-InstallMethod(DigraphGreedyColouring, "for a digraph",
-[IsDigraph, IsHomogeneousList],
-function(D, order)
-  local n;
-  n := DigraphNrVertices(D);
-  if Length(order) <> n or ForAny(order, x -> (not IsPosInt(x)) or x > n) then
-    ErrorNoReturn("the 2nd argument <order> must be a permutation of ",
-                  "[1 .. ", n, "]");
-  fi;
-  return DigraphGreedyColouringNC(D, order);
-end);
-
-InstallMethod(DigraphGreedyColouringNC,
-"for a digraph by out-neighbours and a homogeneous list",
-[IsDigraphByOutNeighboursRep, IsHomogeneousList],
-function(D, order)
-  local n, colour, colouring, out, inn, empty, all, available, nr_coloured, v;
-  n := DigraphNrVertices(D);
-  if n = 0 then
-    return IdentityTransformation;
-  elif DigraphHasLoops(D) then
-    return fail;
-  fi;
-  colour := 1;
-  colouring := ListWithIdenticalEntries(n, 0);
-  out := OutNeighbours(D);
-  inn := InNeighbours(D);
-  empty := BlistList([1 .. n], []);
-  all := BlistList([1 .. n], [1 .. n]);
-  available := BlistList([1 .. n], [1 .. n]);
-  nr_coloured := 0;
-  while nr_coloured < n do
-    for v in order do
-      if colouring[v] = 0 and available[v] then
-        nr_coloured := nr_coloured + 1;
-        colouring[v] := colour;
-        available[v] := false;
-        SubtractBlist(available, BlistList([1 .. n], out[v]));
-        SubtractBlist(available, BlistList([1 .. n], inn[v]));
-        if available = empty then
-          break;
-        fi;
-      fi;
-    od;
-    UniteBlist(available, all);
-    colour := colour + 1;
-  od;
-  return TransformationNC(colouring);
-end);
-
-InstallMethod(DigraphGreedyColouring, "for a digraph and a function",
-[IsDigraph, IsFunction],
-{D, func} -> DigraphGreedyColouringNC(D, func(D)));
-
-InstallMethod(DigraphGreedyColouring,
-"for a digraph and DSATUR colouring algorithm",
-[IsDigraph, IsDigraphColouringAlgorithm and IsDigraphColouringAlgorithmDSATUR],
-function(D, DSATUR)
-  return DIGRAPHS_dsatur_greedy_colouring(D)[1];
-end);
 
 InstallMethod(DigraphWelshPowellOrder, "for a digraph", [IsDigraph],
 function(D)

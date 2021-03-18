@@ -6,3 +6,6 @@ DeclareFilter("IsDigraphColouringAlgorithmLawler");
 DeclareFilter("IsDigraphColouringAlgorithmZykov");
 DeclareFilter("IsDigraphColouringAlgorithmChristofides");
 DeclareFilter("IsDigraphColouringAlgorithmDSATUR");
+DeclareFilter("IsDigraphColouringAlgorithmBrelaz");
+DeclareFilter("IsDigraphColouringAlgorithmSewell");
+DeclareFilter("IsDigraphColouringAlgorithmSegundo");

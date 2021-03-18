@@ -34,4 +34,22 @@ BindGlobal("DigraphColouringAlgorithmDSATUR",
                 DigraphColouringAlgorithmFamilyObj,
                 IsDigraphColouringAlgorithmDSATUR),
               rec()));
+BindGlobal("DigraphColouringAlgorithmBrelaz",
+            Objectify(
+              NewType(
+                DigraphColouringAlgorithmFamilyObj,
+                IsDigraphColouringAlgorithmBrelaz),
+              rec()));
+BindGlobal("DigraphColouringAlgorithmSewell",
+            Objectify(
+              NewType(
+                DigraphColouringAlgorithmFamilyObj,
+                IsDigraphColouringAlgorithmBrelaz),
+              rec()));
+BindGlobal("DigraphColouringAlgorithmSegundo",
+            Objectify(
+              NewType(
+                DigraphColouringAlgorithmFamilyObj,
+                IsDigraphColouringAlgorithmBrelaz),
+              rec()));
 Unbind(DigraphColouringAlgorithmFamilyObj);
