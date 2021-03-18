@@ -148,9 +148,9 @@ function(D, DSATUR)
   end;
   # Break ties via maximum degree, further ties broken by ascending order.
   tie_breaker := function(D, vertices, colouring, k)
-    local v,u, cur_deg, min_deg;
+    local v, u, cur_deg, min_deg;
     min_deg := infinity;
-    for u in vertices do 
+    for u in vertices do
       cur_deg := OutDegreeOfVertex(D, u); 
       if cur_deg < min_deg then
         v := u;
@@ -188,9 +188,9 @@ function(D, DSATUR)
   tie_breaker := function(D, vertices, colouring, k)
     local min_count, count, v, u, picked, colour;
     min_count := infinity;
-    for v in vertices do 
+    for v in vertices do
       count := 0;
-      for colour in [1..k] do
+      for colour in [1 .. k] do
         # Check each neighbour of cur.
         for u in OutNeighboursOfVertex(v) do
           # Only consider uncoloured vertices
@@ -205,7 +205,7 @@ function(D, DSATUR)
       od;
       if count < min_count then
         min_count := count;
-        picked := v; 
+        picked := v;
       fi;
     od;
     return picked;
@@ -239,9 +239,9 @@ function(D, DSATUR)
   tie_breaker := function(D, vertices, colouring, k)
     local min_count, count, v, u, picked, colour;
     min_count := infinity;
-    for v in vertices do 
+    for v in vertices do
       count := 0;
-      for colour in [1..k] do
+      for colour in [1 .. k] do
         # Check each neighbour of cur.
         for u in OutNeighboursOfVertex(v) do
           # Only consider uncoloured vertices from the candidates
@@ -256,7 +256,7 @@ function(D, DSATUR)
       od;
       if count < min_count then
         min_count := count;
-        picked := v; 
+        picked := v;
       fi;
     od;
     return picked;
@@ -513,7 +513,6 @@ function(D)
   od;
   return [TransformationNC(colouring), clique];
 end);
-
 
 InstallMethod(DigraphWelshPowellOrder, "for a digraph", [IsDigraph],
 function(D)

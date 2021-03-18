@@ -29,7 +29,8 @@ DeclareOperation("DigraphEmbedding", [IsDigraph, IsDigraph]);
 DeclareOperation("EmbeddingsDigraphs", [IsDigraph, IsDigraph]);
 DeclareOperation("EmbeddingsDigraphsRepresentatives", [IsDigraph, IsDigraph]);
 
-DeclareGlobalFunction("DIGRAPHS_ExactDSATUR", [IsDigraph, IsFunction, IsFunction]);
+DeclareGlobalFunction("DIGRAPHS_ExactDSATUR",
+[IsDigraph, IsFunction, IsFunction]);
 DeclareOperation("DigraphColouring", [IsDigraph, IsInt]);
 DeclareOperation("DigraphColouring",
                  [IsDigraph, IsDigraphColouringAlgorithm]);
