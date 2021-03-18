@@ -185,30 +185,30 @@ function(D, DSATUR)
   end;
   # Break ties by the number of common colours available in the neighbours
   # of uncoloured vertices.
-  tie_breaker := function(D, cur, new, colouring, k)
-    local count, vertices, v, u, colour;
-    count := [0, 0];
-    vertices := [cur, new];
-    for v in [1, 2] do 
+  tie_breaker := function(D, vertices, colouring, k)
+    local min_count, count, v, u, picked, colour;
+    min_count := infinity;
+    for v in vertices do 
+      count := 0;
       for colour in [1..k] do
         # Check each neighbour of cur.
-        for u in OutNeighboursOfVertex(vertices[v]) do
+        for u in OutNeighboursOfVertex(v) do
           # Only consider uncoloured vertices
           if colouring[u] <> 0 then
             break;
           fi;
           # Increase count if this neighbour can be coloured with colour
           if ForAll(OutNeighboursOfVertex(u), x -> colouring[x] <> colour) then
-            count[v] := count[v] + 1;
+            count := count + 1;
           fi;
         od;
       od;
+      if count < min_count then
+        min_count := count;
+        picked := v; 
+      fi;
     od;
-    # Pick vertex with greatest sum.
-    if count[0] < count[1] then
-      return true;
-    fi;
-    return false;
+    return picked;
   end;
   return DIGRAPHS_ExactDSATUR(D, initialise_function, tie_breaker);
 end);
