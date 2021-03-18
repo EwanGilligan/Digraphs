@@ -151,7 +151,7 @@ function(D, DSATUR)
     local v, u, cur_deg, min_deg;
     min_deg := infinity;
     for u in vertices do
-      cur_deg := OutDegreeOfVertex(D, u); 
+      cur_deg := OutDegreeOfVertex(D, u);
       if cur_deg < min_deg then
         v := u;
         min_deg := cur_deg;
