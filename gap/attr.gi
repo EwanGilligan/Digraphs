@@ -618,21 +618,26 @@ function(D, Zykov)
   fi;
   # Recursive function call
   ZykovReduce := function(D)
-    local nr, D_contraction, adjacent, vertices, vertex, x, y, u, found;
+    local nr, D_contract, adjacent, vertices, v, x, y, x_i, y_i, found, deg;
     nr := DigraphNrVertices(D);
     # Update upper bound if possible.
     chrom := Minimum(nr, chrom);
-    # Leaf nodes are either complete graphs or q-cliques. The chromatic number is
-    # then the smallest q-clique found.
+    # Leaf nodes are either complete graphs or q-cliques. The chromatic number
+    # is then the smallest q-clique found.
     if not IsCompleteDigraph(D) and DigraphClique(D, [], [], chrom) = fail then
       # Get adjacency function
       adjacent := DigraphAdjacencyFunction(D);
-      vertices := DigraphVertices(D);
+      # Sort vertices by degree, so that higher degree vertices are picked first
+      vertices := [1 .. nr];
+      deg   := ShallowCopy(OutDegrees(D));
+      SortParallel(deg, vertices, {x, y} -> x > y);
       # Choose two non-adjacent vertices x, y
       # This is just done by ascending ordering.
       found := false;
-      for x in vertices do
-        for y in [x + 1 .. nr] do
+      for x_i in [1..nr] do
+        x := vertices[x_i]; 
+        for y_i in [x_i + 1 .. nr] do
+          y := vertices[y_i];
           if not adjacent(x, y) then
             found := true;
             break;
@@ -647,22 +652,21 @@ function(D, Zykov)
       # Colour the vertex contraction.
       # A contraction of a graph effectively merges two non adjacent vertices
       # into a single new vertex with the edges merged.
-      # Index of the new vertex
-      u := nr + 1;
-      D_contraction := DigraphMutableCopy(D);
-      DigraphAddVertex(D_contraction, u);
-      for vertex in vertices do
+      # We merge y into x, keeping x.
+      D_contract := DigraphMutableCopy(D);
+      for v in vertices do
          # Iterate over all vertices that
-         if vertex = x or vertex = y then
+         if v = x or v = y then
            continue;
          fi;
-         if adjacent(x, vertex) or adjacent(vertex, y) then
-            DigraphAddEdge(D_contraction, u, vertex);
-            DigraphAddEdge(D_contraction, vertex, u);
+         # Add any edge that involves y, but not already x to avoid duplication.
+         if adjacent(v, y) and not adjacent(v, x) then
+            DigraphAddEdge(D_contract, x, v);
+            DigraphAddEdge(D_contract, v, x);
          fi;
       od;
-      DigraphRemoveVertices(D_contraction, [x, y]);
-      ZykovReduce(D_contraction);
+      DigraphRemoveVertex(D_contract, y);
+      ZykovReduce(D_contract);
       # Colour the edge addition
       # This just adds symmetric edges between x and y;
       DigraphAddEdge(D, [x, y]);
