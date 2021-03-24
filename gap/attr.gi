@@ -517,36 +517,6 @@ function(D, Byskov)
 end
 );
 
-BindGlobal("DIGRAPHS_UnderThreeColourable",
-function(D)
-  local nr, I;
-  nr := DigraphNrVertices(D);
-  if DigraphHasLoops(D) then
-    ErrorNoReturn("the argument <D> must be a digraph with no loops,");
-  elif nr = 0 then
-    return 0;  # chromatic number = 0 iff <D> has 0 verts
-  elif IsNullDigraph(D) then
-    return 1;  # chromatic number = 1 iff <D> has >= 1 verts & no edges
-  elif IsBipartiteDigraph(D) then
-    return 2;  # chromatic number = 2 iff <D> has >= 2 verts & is bipartite
-               # <D> has at least 2 vertices at this stage
-  fi;
-  # Now check if the graph is three colourable. This is done by searching
-  # for a maximal independent set where the subgraph induced by removing the
-  # vertices in the set is bipartite.
-  # Need to make a copy in case we are given a mutable digraph
-  D := DigraphImmutableCopyIfMutable(D);
-  for I in DigraphMaximalIndependentSets(D) do
-    # Check if removing these vertices gives you a bipartite digraph
-    if IsBipartiteDigraph(DigraphRemoveVertices(D, I)) then
-      return 3;
-    fi;
-  od;
-  # This graph is greater than 3 colourable.
-  return infinity;
-end
-);
-
 InstallMethod(ChromaticNumber, "for a digraph and colouring algorithm",
 [IsDigraph, IsDigraphColouringAlgorithm and IsDigraphColouringAlgorithmByskov],
 function(D, Byskov)
@@ -766,7 +736,7 @@ function(D, Christofides)
       else
         # Step 4
         # Compute the maximal independent sets of V \ T
-        v_without_t := DIGRAPHS_MaximalIndependentSetsFromSubtractedSet(I, T);
+        v_without_t := DIGRAPHS_MaximalIndependentSetsSubtractedSet(I, T, infinity);
         # Step 5
         # Pick u in V \ T such that u is in the fewest maximal independent sets.
         u := -1;
