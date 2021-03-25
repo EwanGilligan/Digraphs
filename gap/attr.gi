@@ -624,7 +624,9 @@ function(D, Zykov)
     chrom := Minimum(nr, chrom);
     # Leaf nodes are either complete graphs or q-cliques. The chromatic number
     # is then the smallest q-clique found.
-    if not IsCompleteDigraph(D) and DigraphClique(D, [], [], chrom) = fail then
+    if not IsCompleteDigraph(D) and IsEmpty(CliquesFinder(D, fail, [], 1, [],
+                                                          [], false, chrom,
+                                                          true)) then
       # Get adjacency function
       adjacent := DigraphAdjacencyFunction(D);
       # Sort vertices by degree, so that higher degree vertices are picked first
