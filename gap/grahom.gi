@@ -134,15 +134,18 @@ function(D, DSATUR)
   # Upper bound based on the colours used for a greedy colouring
   # Lower bound is the size of a clique found during the greedy colouring.
   initialise_function := function(D)
-    local init_colouring, lb, ub;
+    local init_colouring, lb, ub, clique;
     # Initial greedy colouring for upper and lower bounds.
     init_colouring := DIGRAPHS_GreedyDSATUR(D);
     # Lower bound is clique number from initial colouring.
     lb := Length(init_colouring[2]);
     # Upper bound is colours used in greedy colouring.
     ub := RankOfTransformation(init_colouring[1]);
+    # Initial clique in the graph
+    clique := init_colouring[2];
     init_colouring := ListX(DigraphVertices(D), x -> x ^ init_colouring[1]);
     return rec(init_colouring := init_colouring,
+               clique := clique,
                lb := lb,
                ub := ub);
   end;
@@ -171,15 +174,18 @@ function(D, DSATUR)
   # Upper bound based on the colours used for a greedy colouring
   # Lower bound is the size of a clique found during the greedy colouring.
   initialise_function := function(D)
-    local init_colouring, lb, ub;
+    local init_colouring, lb, ub, clique;
     # Initial greedy colouring for upper and lower bounds.
     init_colouring := DIGRAPHS_GreedyDSATUR(D);
     # Lower bound is clique number from initial colouring.
     lb := Length(init_colouring[2]);
     # Upper bound is colours used in greedy colouring.
     ub := RankOfTransformation(init_colouring[1]);
+    # Initial clique in the graph
+    clique := init_colouring[2];
     init_colouring := ListX(DigraphVertices(D), x -> x ^ init_colouring[1]);
     return rec(init_colouring := init_colouring,
+               clique := clique,
                lb := lb,
                ub := ub);
   end;
@@ -220,15 +226,18 @@ function(D, DSATUR)
   # Upper bound based on the colours used for a greedy colouring
   # Lower bound is the size of a clique found during the greedy colouring.
   initialise_function := function(D)
-    local init_colouring, lb, ub;
+    local init_colouring, lb, ub, clique;
     # Initial greedy colouring for upper and lower bounds.
     init_colouring := DIGRAPHS_GreedyDSATUR(D);
     # Lower bound is clique number from initial colouring.
     lb := Length(init_colouring[2]);
     # Upper bound is colours used in greedy colouring.
     ub := RankOfTransformation(init_colouring[1]);
+    # Initial clique in the graph
+    clique := init_colouring[2];
     init_colouring := ListX(DigraphVertices(D), x -> x ^ init_colouring[1]);
     return rec(init_colouring := init_colouring,
+               clique := clique,
                lb := lb,
                ub := ub);
   end;
@@ -268,7 +277,7 @@ InstallGlobalFunction(DIGRAPHS_ExactDSATUR,
 [IsDigraph, IsFunction, IsFunction],
 function(D, initialise_function, tie_breaker)
   local nr, lb, ub, main_func, best_colouring, dsatur_func, neighbours, init,
-  degrees;
+  degrees, clique, initial_colouring, j;
 
   if DigraphHasLoops(D) then
       ErrorNoReturn("the argument <D> must be a digraph with no loops,");
@@ -285,6 +294,13 @@ function(D, initialise_function, tie_breaker)
   degrees := ListWithIdenticalEntries(nr, 0);
   ub := init.ub;
   lb := init.lb;
+  # Initial clique to colour
+  clique := init.clique;
+  # Colour clique in the initial colouring, as this won't change.
+  initial_colouring := ListWithIdenticalEntries(nr, 0);
+  for j in [1..Length(clique)] do
+    initial_colouring[clique[j]] := j;
+  od;
   # Function to compute the degree of saturation of a vertex.
   # This is the number of colours that neighbours are currently
   # coloured with.
@@ -343,8 +359,8 @@ function(D, initialise_function, tie_breaker)
         fi;
       fi;
     end;
-  # Call recursive function with empty initial colouring
-  main_func(ListWithIdenticalEntries(nr, 0), 0, 0);
+  # Call recursive function with initial colouring
+  main_func(initial_colouring, Length(clique), Length(clique));
   return TransformationNC(best_colouring);
 end);
 
