@@ -242,11 +242,10 @@ function(D, DSATUR)
     for v in vertices do
       count := 0;
       for colour in [1 .. k] do
-        # Check each neighbour of cur.
-        for u in OutNeighboursOfVertex(v) do
-          # Only consider uncoloured vertices from the candidates
-          if colouring[u] <> 0 or (not u in vertices) then
-            break;
+        # Check neighbours of v that are also candidates.
+        for u in vertices do
+          if u = v then
+            continue;
           fi;
           # Increase count if this neighbour can be coloured with colour
           if ForAll(OutNeighboursOfVertex(u), x -> colouring[x] <> colour) then
