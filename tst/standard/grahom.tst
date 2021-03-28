@@ -443,7 +443,7 @@ gap> DigraphGreedyColouring(EmptyDigraph(0));
 IdentityTransformation
 
 # DigraphColouringAlgorithmBrelez
-gap> gr := Digraph([[2,2], []]);
+gap> gr := Digraph([[2, 2], []]);
 <immutable multidigraph with 2 vertices, 2 edges>
 gap> DigraphColouring(gr, DigraphColouringAlgorithmBrelaz);
 IdentityTransformation
@@ -499,7 +499,7 @@ gap> DigraphColouring(gr, DigraphColouringAlgorithmBrelaz);
 IdentityTransformation
 
 # DigraphColouringAlgorithmSewell
-gap> gr := Digraph([[2,2], []]);
+gap> gr := Digraph([[2, 2], []]);
 <immutable multidigraph with 2 vertices, 2 edges>
 gap> DigraphColouring(gr, DigraphColouringAlgorithmSewell);
 IdentityTransformation
@@ -555,7 +555,7 @@ gap> DigraphColouring(gr, DigraphColouringAlgorithmSewell);
 IdentityTransformation
 
 # DigraphColouringAlgorithmSegundo
-gap> gr := Digraph([[2,2], []]);
+gap> gr := Digraph([[2, 2], []]);
 <immutable multidigraph with 2 vertices, 2 edges>
 gap> DigraphColouring(gr, DigraphColouringAlgorithmSegundo);
 IdentityTransformation
