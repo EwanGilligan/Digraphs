@@ -636,8 +636,8 @@ function(D, Zykov)
       # Choose two non-adjacent vertices x, y
       # This is just done by ascending ordering.
       found := false;
-      for x_i in [1..nr] do
-        x := vertices[x_i]; 
+      for x_i in [1 .. nr] do
+        x := vertices[x_i];
         for y_i in [x_i + 1 .. nr] do
           y := vertices[y_i];
           if not adjacent(x, y) then
@@ -742,7 +742,8 @@ function(D, Christofides)
       else
         # Step 4
         # Compute the maximal independent sets of V \ T
-        v_without_t := DIGRAPHS_MaximalIndependentSetsSubtractedSet(I, T, infinity);
+        v_without_t := DIGRAPHS_MaximalIndependentSetsSubtractedSet(I, T,
+                                                                    infinity);
         # Step 5
         # Pick u in V \ T such that u is in the fewest maximal independent sets.
         u := -1;
