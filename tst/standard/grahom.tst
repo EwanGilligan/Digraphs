@@ -465,9 +465,37 @@ gap> gr := DigraphFromSparse6String(
 gap> IsBipartiteDigraph(gr);
 true
 gap> c := DigraphColouring(gr, DigraphColouringAlgorithmBrelaz);
-Transformation( [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 ] )
-IsDigraphColouring(gr, c);
+Transformation( [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2,
+  2, 2, 2, 2, 2, 2, 2, 2, 2, 2 ] )
+gap> IsDigraphColouring(gr, c);
 true
+gap> D := Digraph([[3, 4, 6, 8], [4, 6, 7, 8, 10], [2, 6, 7, 8, 9], [3, 5, 7],
+> [1, 2, 3, 6, 9], [2, 6, 8, 10], [7], [1, 10], [2, 7, 8], [1, 2, 6, 8, 10]]);;
+gap> DigraphHasLoops(D);
+true
+gap> DigraphColouring(D, DigraphColouringAlgorithmBrelaz);
+Error, the argument <D> must be a digraph with no loops,
+gap> gr := DigraphFromGraph6String("KmKk~K??G@_@");
+<immutable digraph with 12 vertices, 42 edges>
+gap> c := DigraphColouring(gr, DigraphColouringAlgorithmBrelaz);
+Transformation( [ 2, 1, 2, 3, 4, 3, 1, 4, 1, 2, 3, 1 ] )
+gap> IsDigraphColouring(gr, c);
+true
+gap> RankOfTransformation(c);
+4
+gap> gr := DigraphRemoveEdges(CompleteDigraph(50), [[1, 2], [2, 1]]);
+<immutable digraph with 50 vertices, 2448 edges>
+gap> c := DigraphColouring(gr, DigraphColouringAlgorithmBrelaz);
+Transformation( [ 49, 49, 3, 4, 5, 6, 7, 8, 9, 10, 11, 1, 12, 14, 15, 16, 17,
+  18, 19, 20, 21, 22, 23, 24, 13, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 48,
+  37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 36, 47, 2, 25 ] )
+gap> IsDigraphColouring(gr, c);
+true
+gap> RankOfTransformation(c);
+49
+gap> gr := EmptyDigraph(0);
+gap> DigraphColouring(gr, DigraphColouringAlgorithmBrelaz);
+IdentityTransformation
 
 # DigraphWelshPowellOrder
 gap> order_func := D -> [1 .. DigraphNrVertices(D)];;
