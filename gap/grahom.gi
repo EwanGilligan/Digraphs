@@ -298,7 +298,7 @@ function(D, initialise_function, tie_breaker)
   clique := init.clique;
   # Colour clique in the initial colouring, as this won't change.
   initial_colouring := ListWithIdenticalEntries(nr, 0);
-  for j in [1..Length(clique)] do
+  for j in [1 .. Length(clique)] do
     initial_colouring[clique[j]] := j;
   od;
   # Function to compute the degree of saturation of a vertex.
