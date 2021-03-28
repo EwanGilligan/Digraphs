@@ -494,7 +494,120 @@ true
 gap> RankOfTransformation(c);
 49
 gap> gr := EmptyDigraph(0);
+<immutable empty digraph with 0 vertices>
 gap> DigraphColouring(gr, DigraphColouringAlgorithmBrelaz);
+IdentityTransformation
+
+# DigraphColouringAlgorithmSewell
+gap> gr := Digraph([[2,2], []]);
+<immutable multidigraph with 2 vertices, 2 edges>
+gap> DigraphColouring(gr, DigraphColouringAlgorithmSewell);
+IdentityTransformation
+gap> gr := EmptyDigraph(4);
+<immutable empty digraph with 4 vertices>
+gap> DigraphColouring(gr, DigraphColouringAlgorithmSewell);
+Transformation( [ 1, 1, 1, 1 ] )
+gap> gr := CompleteDigraph(10);
+<immutable complete digraph with 10 vertices>
+gap> DigraphColouring(gr, DigraphColouringAlgorithmSewell);
+IdentityTransformation
+gap> gr := CycleDigraph(5);
+<immutable cycle digraph with 5 vertices>
+gap> DigraphColouring(gr, DigraphColouringAlgorithmSewell);
+Transformation( [ 1, 2, 1, 2, 3 ] )
+gap> gr := DigraphFromSparse6String(
+> ":]nA?LcB@_EDfEB`GIaHGdJIgEKcLK`?MdCHiFLaBJhFMkJM");
+<immutable digraph with 30 vertices, 90 edges>
+gap> IsBipartiteDigraph(gr);
+true
+gap> c := DigraphColouring(gr, DigraphColouringAlgorithmSewell);
+Transformation( [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2,
+  2, 2, 2, 2, 2, 2, 2, 2, 2, 2 ] )
+gap> IsDigraphColouring(gr, c);
+true
+gap> D := Digraph([[3, 4, 6, 8], [4, 6, 7, 8, 10], [2, 6, 7, 8, 9], [3, 5, 7],
+> [1, 2, 3, 6, 9], [2, 6, 8, 10], [7], [1, 10], [2, 7, 8], [1, 2, 6, 8, 10]]);;
+gap> DigraphHasLoops(D);
+true
+gap> DigraphColouring(D, DigraphColouringAlgorithmSewell);
+Error, the argument <D> must be a digraph with no loops,
+gap> gr := DigraphFromGraph6String("KmKk~K??G@_@");
+<immutable digraph with 12 vertices, 42 edges>
+gap> c := DigraphColouring(gr, DigraphColouringAlgorithmSewell);
+Transformation( [ 2, 1, 2, 3, 4, 3, 1, 4, 1, 2, 3, 1 ] )
+gap> IsDigraphColouring(gr, c);
+true
+gap> RankOfTransformation(c);
+4
+gap> gr := DigraphRemoveEdges(CompleteDigraph(50), [[1, 2], [2, 1]]);
+<immutable digraph with 50 vertices, 2448 edges>
+gap> c := DigraphColouring(gr, DigraphColouringAlgorithmSewell);
+Transformation( [ 49, 49, 3, 4, 5, 6, 7, 8, 9, 10, 11, 1, 12, 14, 15, 16, 17,
+  18, 19, 20, 21, 22, 23, 24, 13, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 48,
+  37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 36, 47, 2, 25 ] )
+gap> IsDigraphColouring(gr, c);
+true
+gap> RankOfTransformation(c);
+49
+gap> gr := EmptyDigraph(0);
+<immutable empty digraph with 0 vertices>
+gap> DigraphColouring(gr, DigraphColouringAlgorithmSewell);
+IdentityTransformation
+
+# DigraphColouringAlgorithmSegundo
+gap> gr := Digraph([[2,2], []]);
+<immutable multidigraph with 2 vertices, 2 edges>
+gap> DigraphColouring(gr, DigraphColouringAlgorithmSegundo);
+IdentityTransformation
+gap> gr := EmptyDigraph(4);
+<immutable empty digraph with 4 vertices>
+gap> DigraphColouring(gr, DigraphColouringAlgorithmSegundo);
+Transformation( [ 1, 1, 1, 1 ] )
+gap> gr := CompleteDigraph(10);
+<immutable complete digraph with 10 vertices>
+gap> DigraphColouring(gr, DigraphColouringAlgorithmSegundo);
+IdentityTransformation
+gap> gr := CycleDigraph(5);
+<immutable cycle digraph with 5 vertices>
+gap> DigraphColouring(gr, DigraphColouringAlgorithmSegundo);
+Transformation( [ 1, 2, 1, 2, 3 ] )
+gap> gr := DigraphFromSparse6String(
+> ":]nA?LcB@_EDfEB`GIaHGdJIgEKcLK`?MdCHiFLaBJhFMkJM");
+<immutable digraph with 30 vertices, 90 edges>
+gap> IsBipartiteDigraph(gr);
+true
+gap> c := DigraphColouring(gr, DigraphColouringAlgorithmSegundo);
+Transformation( [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2,
+  2, 2, 2, 2, 2, 2, 2, 2, 2, 2 ] )
+gap> IsDigraphColouring(gr, c);
+true
+gap> D := Digraph([[3, 4, 6, 8], [4, 6, 7, 8, 10], [2, 6, 7, 8, 9], [3, 5, 7],
+> [1, 2, 3, 6, 9], [2, 6, 8, 10], [7], [1, 10], [2, 7, 8], [1, 2, 6, 8, 10]]);;
+gap> DigraphHasLoops(D);
+true
+gap> DigraphColouring(D, DigraphColouringAlgorithmSegundo);
+Error, the argument <D> must be a digraph with no loops,
+gap> gr := DigraphFromGraph6String("KmKk~K??G@_@");
+<immutable digraph with 12 vertices, 42 edges>
+gap> c := DigraphColouring(gr, DigraphColouringAlgorithmSegundo);
+Transformation( [ 2, 1, 2, 3, 4, 3, 1, 4, 1, 2, 3, 1 ] )
+gap> IsDigraphColouring(gr, c);
+true
+gap> RankOfTransformation(c);
+4
+gap> gr := DigraphRemoveEdges(CompleteDigraph(50), [[1, 2], [2, 1]]);
+<immutable digraph with 50 vertices, 2448 edges>
+gap> c := DigraphColouring(gr, DigraphColouringAlgorithmSegundo);
+Transformation( [ 49, 49, 3, 4, 5, 6, 7, 8, 9, 10, 11, 1, 12, 14, 15, 16, 17,
+  18, 19, 20, 21, 22, 23, 24, 13, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 48,
+  37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 36, 47, 2, 25 ] )
+gap> IsDigraphColouring(gr, c);
+true
+gap> RankOfTransformation(c);
+49
+gap> gr := EmptyDigraph(0);
+<immutable empty digraph with 0 vertices>
+gap> DigraphColouring(gr, DigraphColouringAlgorithmSegundo);
 IdentityTransformation
 
 # DigraphWelshPowellOrder
