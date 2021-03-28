@@ -442,6 +442,33 @@ Transformation( [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2,
 gap> DigraphGreedyColouring(EmptyDigraph(0));
 IdentityTransformation
 
+# DigraphColouringAlgorithmBrelez
+gap> gr := Digraph([[2,2], []]);
+<immutable multidigraph with 2 vertices, 2 edges>
+gap> DigraphColouring(gr, DigraphColouringAlgorithmBrelaz);
+IdentityTransformation
+gap> gr := EmptyDigraph(4);
+<immutable empty digraph with 4 vertices>
+gap> DigraphColouring(gr, DigraphColouringAlgorithmBrelaz);
+Transformation( [ 1, 1, 1, 1 ] )
+gap> gr := CompleteDigraph(10);
+<immutable complete digraph with 10 vertices>
+gap> DigraphColouring(gr, DigraphColouringAlgorithmBrelaz);
+IdentityTransformation
+gap> gr := CycleDigraph(5);
+<immutable cycle digraph with 5 vertices>
+gap> DigraphColouring(gr, DigraphColouringAlgorithmBrelaz);
+Transformation( [ 1, 2, 1, 2, 3 ] )
+gap> gr := DigraphFromSparse6String(
+> ":]nA?LcB@_EDfEB`GIaHGdJIgEKcLK`?MdCHiFLaBJhFMkJM");
+<immutable digraph with 30 vertices, 90 edges>
+gap> IsBipartiteDigraph(gr);
+true
+gap> c := DigraphColouring(gr, DigraphColouringAlgorithmBrelaz);
+Transformation( [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 ] )
+IsDigraphColouring(gr, c);
+true
+
 # DigraphWelshPowellOrder
 gap> order_func := D -> [1 .. DigraphNrVertices(D)];;
 gap> DigraphGreedyColouring(EmptyDigraph(0), order_func);
@@ -2549,6 +2576,7 @@ gap> Unbind(homos);
 gap> Unbind(mat);
 gap> Unbind(monos);
 gap> Unbind(x);
+gap> Unbind(c);
 
 #
 gap> DIGRAPHS_StopTest();
