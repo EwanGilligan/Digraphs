@@ -443,20 +443,18 @@ function(D)
     return [IdentityTransformation, []];
   fi;
   vertices := DigraphVertices(D);
-  inn := InNeighbours(D);
-  outn := OutNeighbours(D);
+  D := DigraphSymmetricClosure(D);
+  neighbours := OutNeighbours(D);
   # Take union of in and out neighbours
-  neighbours := ListX(vertices, x -> UnionBlist(BlistList(vertices, outn[x]),
-                  BlistList(vertices, inn[x])));
   # Function to compute the degree of saturation of a vertex, which is the number
   # of different colours assigned to its neighbours in a colouring.
   dsatur_func := function(vertex)
     local k, neighbour_colours;
     neighbour_colours := [];
-    for k in vertices do
+    for k in neighbours[vertex] do
       # If the vertices are adjacent and k has been coloured, then add to the
       # neighbour colours set (if it is not already present).
-      if neighbours[vertex][k] and colouring[k] <> 0 then
+      if colouring[k] <> 0 then
         AddSet(neighbour_colours, colouring[k]);
       fi;
     od;
@@ -471,9 +469,8 @@ function(D)
   v := Remove(ordering, 1);
   # Set this to use the first colour.
   colouring[v] := 1;
+  current_colours := 1;
   nr_coloured := 1;
-  # Store which vertices each colour is assigned.
-  current_colours := [BlistList(vertices, [v])];
   # The first coloured vertices with different colours form a clique which
   # can be used as a lower bound for chromatic number.
   clique := [v];
@@ -498,10 +495,10 @@ function(D)
     # Find the lowest possible colour and assign to v
     while colouring[v] = 0 do
       # If we need a new colour class
-      if j > Length(current_colours) then
-        Add(current_colours, BlistList(vertices, [v]));
+      if j > current_colours then
         # Can always colour with a new colour
         colouring[v] := j;
+        current_colours := current_colours + 1;
         nr_coloured := nr_coloured + 1;
         # If we have only used new colour classes then add the clique.
         if new_colours_only then
@@ -509,13 +506,9 @@ function(D)
         fi;
         break;
       fi;
-      # Otherwise check if we can use the jth colour class.
-      temp := IntersectionBlist(neighbours[v], current_colours[j]);
       # If intersection is empty, then this colour can be assigned.
       # Add vertex to the jth colour class.
-      if SizeBlist(temp) = 0 then
-        # Add v to the jth colour class
-        current_colours[j][v] := true;
+      if ForAll(neighbours[v], x -> colouring[x] <> j) then
         # set v to use colour j
         colouring[v] := j;
         nr_coloured := nr_coloured + 1;
