@@ -1462,6 +1462,10 @@ gap> ChromaticNumber(D);
           <Cite Key="Law1976"/></Item>
           <Item><A>DigraphColouringAlgorithmByskov</A> - Byskov's Algorithm 
           <Cite Key="Bys2002"/></Item>
+          <Item><A>DigraphColouringAlgorithmZykov</A> - Zykov's Algorithm 
+          </Item>
+          <Item><A>DigraphColouringAlgorithmChristofides</A> - Christofides'
+          Algorithm</Item>
       </List>
       <Example><![CDATA[
 gap> ChromaticNumber(CompleteDigraph(10),

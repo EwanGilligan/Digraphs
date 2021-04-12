@@ -405,6 +405,8 @@ gap> GeneratorsOfEndomorphismMonoid(gr, [[1], [2, 3]]);
 <ManSection>
   <Oper Name="DigraphColouring" Arg="digraph, n"
     Label="for a digraph and a number of colours"/>
+  <Oper Name="DigraphColouring" Arg="digraph, func"
+    Label="for a digraph and a method selection object"/>
   <Returns> A transformation, or <K>fail</K>.</Returns>
   <Description>
     A <E>proper colouring</E> of a digraph is a labelling of its vertices in
@@ -422,6 +424,21 @@ gap> GeneratorsOfEndomorphismMonoid(gr, [[1], [2, 3]]);
     <C>DigraphColouring(<A>digraph</A>, <A>n</A>)</C> returns an epimorphism
     from <A>digraph</A> onto the complete digraph with <A>n</A> vertices if one
     exists, else it returns <K>fail</K>. <P/>
+
+    If <A>digraph</A> is a digraph and <A>func</A> is one of the permitted values
+    (listed below), then
+    <C>DigraphColouring(<A>digraph</A>, <A>func</A>)</C> returns an optimal
+    colouring of <A>digraph</A> if one exists, else it returns <K>fail</K>.
+    The permitted values are as follows:
+      <List>
+        <Item><A>DigraphColouringAlgorithmBrelaz</A> - Brelaz's Algorithm 
+        </Item>
+        <Item><A>DigraphColouringAlgorithmSewell</A> - Sewell's Algorithm 
+        </Item>
+        <Item><A>DigraphColouringAlgorithmSegundo</A> - Segundo's Algorithm 
+        </Item>
+      </List>
+    <P/>
 
     See also <Ref Attr="DigraphGreedyColouring" Label="for a digraph"/> and 
     <P/>
@@ -457,6 +474,9 @@ Transformation( [ 2, 1, 2, 1, 2, 1, 2, 1, 2, 1 ] )
   <Attr Name="DigraphGreedyColouring" 
         Arg="digraph" 
         Label="for a digraph"/>
+  <Oper Name="DigraphGreedyColouring" 
+        Arg="digraph, dsatur" 
+        Label="for a digraph and DSATUR colouring algorithm"/>
   <Returns> A transformation, or <K>fail</K>.</Returns>
   <Description>
     A <E>proper colouring</E> of a digraph is a labelling of its vertices in
@@ -480,6 +500,13 @@ Transformation( [ 2, 1, 2, 1, 2, 1, 2, 1, 2, 1 ] )
 
     If the optional second argument (either a list or a function), is not 
     specified, then <Ref Attr="DigraphWelshPowellOrder"/> is used by default. 
+    <P/>
+
+    If <A>digraph</A> is a digraph and <A>dsatur</A> is the method selection
+    object for the DSATUR greedy procedure, then 
+    <C>DigraphGreedyColouring(<A>digraph</A>, <A>DigrahColouringAlgorithmDSATUR
+    </A>)</C> returns a greedy colouring of <A>digraph</A> using the DSATUR
+    procedure.
     <P/>
     
     See also
