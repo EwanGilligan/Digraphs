@@ -140,7 +140,7 @@ function(D, DSATUR)
     # Upper bound is colours used in greedy colouring.
     ub := RankOfTransformation(init_colouring[1]);
     # Initial clique in the graph
-    clique := DigraphMaximalClique(D);
+    clique := init_colouring[2];
     # Lower bound is clique number from initial colouring.
     lb := Length(clique);
     init_colouring := ListX(DigraphVertices(D), x -> x ^ init_colouring[1]);
@@ -180,7 +180,7 @@ function(D, DSATUR)
     # Upper bound is colours used in greedy colouring.
     ub := RankOfTransformation(init_colouring[1]);
     # Initial clique in the graph
-    clique := DigraphMaximalClique(D);
+    clique := init_colouring[2];
     # Lower bound is clique number from initial colouring.
     lb := Length(clique);
     init_colouring := ListX(DigraphVertices(D), x -> x ^ init_colouring[1]);
@@ -232,7 +232,7 @@ function(D, DSATUR)
     # Upper bound is colours used in greedy colouring.
     ub := RankOfTransformation(init_colouring[1]);
     # Initial clique in the graph
-    clique := DigraphMaximalClique(D);
+    clique := init_colouring[2];
     # Lower bound is clique number from initial colouring.
     lb := Length(clique);
     init_colouring := ListX(DigraphVertices(D), x -> x ^ init_colouring[1]);
@@ -330,12 +330,12 @@ function(D, initialise_function, tie_breaker)
           # breaking ties with the tie breaker function.
           for i in [1 .. nr] do
             if C[i] <> 0 then
-              degrees[i] := infinity;
+              degrees[i] := -infinity;
             else
               degrees[i] := dsatur_func(i, C);
             fi;
           od;
-          m_deg := Minimum(degrees);
+          m_deg := Maximum(degrees);
           candidates := Filtered([1 .. nr], x -> degrees[x] = m_deg);
           # Use tie_breaker if there is more than one candidate
           if Length(candidates) > 1 then
@@ -432,7 +432,7 @@ InstallGlobalFunction(DIGRAPHS_GreedyDSATUR,
 [IsDigraph],
 function(D)
   local n, colouring, current_colours, ordering, i, j, v, nr_coloured, inn, outn,
-  vertices, neighbours, min_dsatur, dsatur, temp, dsatur_func, v_index, clique,
+  vertices, neighbours, max_dsatur, dsatur, temp, dsatur_func, v_index, clique,
   new_colours_only;
 
   if DigraphHasLoops(D) then
@@ -481,13 +481,13 @@ function(D)
     # Break ties via maximum degrees or ascending order if not possible.
     v := ordering[1];
     v_index := 1;
-    min_dsatur := dsatur_func(v);
+    max_dsatur := dsatur_func(v);
     for i in [2 .. Length(ordering)] do
       dsatur := dsatur_func(ordering[i]);
-      if dsatur < min_dsatur then
+      if dsatur > max_dsatur then
         v := ordering[i];
         v_index := i;
-        min_dsatur := dsatur;
+        max_dsatur := dsatur;
       fi;
     od;
     Remove(ordering, v_index);
