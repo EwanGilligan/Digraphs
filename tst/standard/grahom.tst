@@ -478,7 +478,7 @@ Error, the argument <D> must be a digraph with no loops,
 gap> gr := DigraphFromGraph6String("KmKk~K??G@_@");
 <immutable digraph with 12 vertices, 42 edges>
 gap> c := DigraphColouring(gr, DigraphColouringAlgorithmBrelaz);
-Transformation( [ 1, 2, 1, 4, 3, 4, 2, 3, 1, 3, 2, 1 ] )
+Transformation( [ 3, 1, 3, 4, 2, 4, 1, 2, 2, 3, 1, 2 ] )
 gap> IsDigraphColouring(gr, c);
 true
 gap> RankOfTransformation(c);
@@ -534,7 +534,7 @@ Error, the argument <D> must be a digraph with no loops,
 gap> gr := DigraphFromGraph6String("KmKk~K??G@_@");
 <immutable digraph with 12 vertices, 42 edges>
 gap> c := DigraphColouring(gr, DigraphColouringAlgorithmSewell);
-Transformation( [ 1, 2, 1, 4, 3, 4, 2, 3, 1, 3, 2, 1 ] )
+Transformation( [ 3, 1, 3, 4, 2, 4, 1, 2, 2, 3, 1, 2 ] )
 gap> IsDigraphColouring(gr, c);
 true
 gap> RankOfTransformation(c);
@@ -590,7 +590,7 @@ Error, the argument <D> must be a digraph with no loops,
 gap> gr := DigraphFromGraph6String("KmKk~K??G@_@");
 <immutable digraph with 12 vertices, 42 edges>
 gap> c := DigraphColouring(gr, DigraphColouringAlgorithmSegundo);
-Transformation( [ 1, 2, 1, 4, 3, 4, 2, 3, 1, 3, 2, 1 ] )
+Transformation( [ 3, 1, 3, 4, 2, 4, 1, 2, 2, 3, 1, 2 ] )
 gap> IsDigraphColouring(gr, c);
 true
 gap> RankOfTransformation(c);
